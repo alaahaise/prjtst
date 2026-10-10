@@ -1,4 +1,4 @@
-# CASPM — Vue + Express, with authentication
+#  — Vue + Express, with authentication
 
 This restructures the single-file app into a routed Vue 3 frontend served by your
 existing Express backend, with login-gated access.
