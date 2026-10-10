@@ -1,5 +1,5 @@
 import { api } from '../api.js';
-import { fmt, sortRows, todayStr, formatDate, relativeLabel } from '../helpers.js';
+import { fmt, sortRows, matchesText, inRange, exportCSV, formatDate, relativeLabel } from '../helpers.js';
 import { toast } from '../toast.js';
 import TransferModal from '../components/TransferModal.js';
 
@@ -12,6 +12,11 @@ export default {
     return {
       materials: [],
       items: [],
+      search: '',
+      from: '',
+      to: '',
+      fromFilter: '',
+      toFilter: '',
       sort: { key: 'transfer_date', type: 'date', dir: -1 },
       showModal: false,
       editingTransfer: null,
@@ -22,8 +27,19 @@ export default {
     multiMaterials() {
       return this.materials.filter(m => m.stock_mode === 'MULTI');
     },
+    fromCodes() {
+      return [...new Set(this.items.map(t => t.from_code).filter(Boolean))].sort();
+    },
+    toCodes() {
+      return [...new Set(this.items.map(t => t.to_code).filter(Boolean))].sort();
+    },
     sortedRows() {
-      return sortRows(this.items, this.sort.key, this.sort.dir, this.sort.type);
+      const rows = this.items.filter(t =>
+        matchesText(t, ['raw_material_name', 'note', 'from_code', 'from_name', 'to_code', 'to_name', 'packaging_name'], this.search.trim()) &&
+        (!this.fromFilter || t.from_code === this.fromFilter) &&
+        (!this.toFilter || t.to_code === this.toFilter) &&
+        inRange(t.transfer_date, this.from, this.to));
+      return sortRows(rows, this.sort.key, this.sort.dir, this.sort.type);
     }
   },
   async mounted() {
@@ -58,6 +74,13 @@ export default {
     sortClass(key) {
       if (this.sort.key !== key) return '';
       return this.sort.dir === 1 ? 'sort-asc' : 'sort-desc';
+    },
+    clearFilters() {
+      this.search = ''; this.from = ''; this.to = ''; this.fromFilter = ''; this.toFilter = '';
+    },
+    doExport() {
+      exportCSV('transferts.csv', ['Date', 'Matiere', 'Conditionnement', 'De', 'Vers', 'Quantite', 'Unite', 'Note'],
+        this.sortedRows.map(t => [t.transfer_date, t.raw_material_name, t.packaging_name || '', t.from_code, t.to_code, t.quantity, t.unit, t.note || '']));
     },
     openModal() {
       this.editingTransfer = null;
@@ -94,15 +117,37 @@ export default {
       <div class="view-header">
         <div class="view-header-left">
           <h1>Transferts</h1>
-          <span class="view-count">{{ items.length }}</span>
+          <span class="view-count">{{ sortedRows.length === items.length ? items.length : sortedRows.length + ' / ' + items.length }}</span>
         </div>
         <div class="view-header-right">
           <button class="btn-primary" @click="openModal">+ Nouveau transfert</button>
-          <button class="btn-secondary" @click="refresh" :disabled="loading">⟳ Actualiser</button>
+          <button class="btn-secondary" @click="refresh" :disabled="loading"><svg-icon name="refresh" /> Actualiser</button>
         </div>
       </div>
 
       <div class="panel">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="ic"><svg-icon name="search" /></span>
+            <input type="search" v-model="search" placeholder="Rechercher par matière, note, lieu…">
+          </div>
+          <div class="date-range">
+            <input type="date" v-model="from" title="Du">
+            <span>→</span>
+            <input type="date" v-model="to" title="Au">
+          </div>
+          <select v-model="fromFilter">
+            <option value="">De : tous</option>
+            <option v-for="c in fromCodes" :key="c" :value="c">{{ c }}</option>
+          </select>
+          <select v-model="toFilter">
+            <option value="">Vers : tous</option>
+            <option v-for="c in toCodes" :key="c" :value="c">{{ c }}</option>
+          </select>
+          <button class="btn-secondary btn-small" type="button" @click="clearFilters">Effacer filtres</button>
+          <span class="spacer"></span>
+          <button class="ghost small-btn" type="button" @click="doExport"><svg-icon name="download" /> CSV</button>
+        </div>
         <div class="scroll-table">
           <table>
             <thead>
@@ -119,7 +164,7 @@ export default {
             </thead>
             <tbody>
               <tr v-if="!sortedRows.length">
-                <td colspan="8" class="empty"><span class="big">—</span>Aucun transfert</td>
+                <td colspan="8" class="empty"><span class="big">—</span>{{ items.length ? 'Aucun transfert ne correspond aux filtres' : 'Aucun transfert' }}</td>
               </tr>
               <tr v-for="t in sortedRows" :key="t.id">
                 <td>
@@ -135,8 +180,8 @@ export default {
                 <td class="num-cell">{{ fmt(t.quantity) }} {{ t.unit }}</td>
                 <td class="text">{{ t.note || '—' }}</td>
                 <td>
-                  <button class="btn-secondary btn-small" @click="editTransfer(t)">✏️</button>
-                  <button class="btn-danger btn-small" @click="deleteTransfer(t.id)">🗑️</button>
+                  <button class="btn-secondary btn-small" @click="editTransfer(t)" title="Modifier"><svg-icon name="pencil" /></button>
+                  <button class="btn-danger btn-small" @click="deleteTransfer(t.id)" title="Supprimer"><svg-icon name="trash" /></button>
                 </td>
               </tr>
             </tbody>

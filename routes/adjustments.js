@@ -5,9 +5,13 @@ const pool = require('../db/pool');
 router.get('/', async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT sa.*, pkg.name AS packaging_name
+      `SELECT sa.*, pkg.name AS packaging_name,
+              CASE WHEN sa.material_type = 'RAW' THEN rm.name ELSE fp.name END AS material_name,
+              CASE WHEN sa.material_type = 'RAW' THEN rm.unit ELSE fp.unit END AS unit
        FROM stock_adjustments sa
        LEFT JOIN packaging pkg ON pkg.id = sa.packaging_id
+       LEFT JOIN raw_materials rm ON sa.material_type = 'RAW' AND rm.id = sa.material_id
+       LEFT JOIN finished_products fp ON sa.material_type = 'FINISHED' AND fp.id = sa.material_id
        ORDER BY sa.adjustment_date DESC, sa.id DESC`
     );
     res.json(rows);

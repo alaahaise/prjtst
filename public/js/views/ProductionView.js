@@ -52,6 +52,16 @@ export default {
       }
 };
   },
+  watch: {
+    // when the grouping changes, pick a sensible default order
+    groupBy(v) {
+      if (['day', 'month', 'year'].includes(v)) {
+        this.groupSortKey = 'sort_key'; this.groupSortType = 'text'; this.groupSortDir = -1; // newest first
+      } else if (v !== 'none') {
+        this.groupSortKey = 'total_produced'; this.groupSortType = 'number'; this.groupSortDir = -1;
+      }
+    }
+  },
   computed: {
     units() {
       return [...new Set(this.items.map(r => r.location_code).filter(Boolean))];
@@ -126,7 +136,8 @@ const rows = [...map.values()].map(g => ({
         runs: g.runs,
         total_produced: g.total_produced,
         unit: g.unit,
-        sort_key: g.group_label,
+        // chronological groups sort on their YYYY-MM / YYYY-MM-DD key, not on the French label
+        sort_key: ['day', 'month', 'year'].includes(this.groupBy) ? g.sort_key : g.group_label,
         materials: [...g.materialsMap.entries()]
           .map(([name, v]) => ({ name, qty: v.qty, unit: v.unit }))
           .sort((a, b) => b.qty - a.qty)
@@ -375,7 +386,7 @@ toggleGroupSort(key, type) {
         </div>
         <div class="view-header-right">
           <button class="btn-primary" @click="openModal">+ Nouvelle production</button>
-          <button class="btn-secondary" @click="refresh" :disabled="loading">⟳ Actualiser</button>
+          <button class="btn-secondary" @click="refresh" :disabled="loading"><svg-icon name="refresh" /> Actualiser</button>
         </div>
       </div>
 
@@ -383,7 +394,7 @@ toggleGroupSort(key, type) {
       <!-- Filters & toolbar -->
       <div class="toolbar">
         <div class="search-wrap">
-          <span class="ic">⌕</span>
+          <span class="ic"><svg-icon name="search" /></span>
           <input type="search" v-model="search" placeholder="Rechercher par produit, note...">
         </div>
         
@@ -423,9 +434,9 @@ toggleGroupSort(key, type) {
         </select>
 
         <div class="toolbar-actions">
-          <button class="btn-secondary btn-small" @click="exportCSV">📥 CSV</button>
-          <button class="btn-secondary btn-small" @click="generateReport">📄 Rapport</button>
-          <button class="btn-secondary btn-small" @click="exportPrintReport">🖨️ Imprimer</button>
+          <button class="btn-secondary btn-small" @click="exportCSV"><svg-icon name="download" /> CSV</button>
+          <button class="btn-secondary btn-small" @click="generateReport"><svg-icon name="file-text" /> Rapport</button>
+          <button class="btn-secondary btn-small" @click="exportPrintReport"><svg-icon name="printer" /> Imprimer</button>
         </div>
       </div>
 
@@ -452,7 +463,7 @@ toggleGroupSort(key, type) {
             <tbody>
               <tr v-if="!filtered.length">
                 <td :colspan="groupBy === 'none' ? 6 : 4" class="empty">
-                  <span class="empty-icon">📦</span>
+                  <span class="empty-icon"><svg-icon name="inbox" /></span>
                   <span>Aucun lot de production trouvé</span>
                   <span class="empty-hint">Ajustez vos filtres ou créez une nouvelle production</span>
                 </td>

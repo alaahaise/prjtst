@@ -194,7 +194,7 @@ filteredReceipts() {
         <div class="view-header-right">
           <button class="btn-primary" @click="openReceivingModal">+ Mettre à jour le stock</button>
           <button class="btn-secondary" @click="openAddProductModal">Ajouter un nouveau produit</button>
-          <button class="btn-secondary" @click="load">⟳ Actualiser</button>
+          <button class="btn-secondary" @click="load"><svg-icon name="refresh" /> Actualiser</button>
         </div>
       </div>
 
@@ -213,7 +213,7 @@ filteredReceipts() {
           :class="{ active: activeTab === 'receipts' }"
           @click="activeTab = 'receipts'"
         >
-          📋 Historique des réceptions
+          <svg-icon name="clipboard-list" /> Historique des réceptions
           <span class="tab-count">{{ receipts.length }}</span>
         </button>
       </div>
@@ -225,7 +225,7 @@ filteredReceipts() {
           <span class="count">{{ filtered.length }} sur {{ items.length }}</span>
         </div>
 <div class="toolbar">
-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par nom…"></div>
+          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par nom…"></div>
           <div class="filter-group">
             <select v-model="filterProduct" multiple size="1" class="filter-select-sm">
               <option v-for="p in items" :key="p.id" :value="String(p.id)">{{ p.name }}</option>
@@ -256,13 +256,13 @@ filteredReceipts() {
       <!-- RECEIPT HISTORY -->
       <div class="panel" v-if="activeTab === 'receipts'">
         <div class="panel-head">
-          <h2 style="margin:0;border:none;padding:0;">📋 Historique des réceptions</h2>
+          <h2 style="margin:0;border:none;padding:0;"><svg-icon name="clipboard-list" /> Historique des réceptions</h2>
           <span class="count">{{ filteredReceipts.length }} sur {{ receipts.length }}</span>
         </div>
 
 <div class="toolbar">
           <div class="search-wrap">
-            <span class="ic">⌕</span>
+            <span class="ic"><svg-icon name="search" /></span>
             <input type="search" v-model="receiptSearch" placeholder="Rechercher par produit…">
           </div>
           <div class="date-range">
@@ -299,8 +299,8 @@ filteredReceipts() {
                 <td class="num-cell pos">+{{ fmt(r.quantity) }} {{ r.unit }}</td>
                 <td>{{ r.note || '—' }}</td>
                 <td>
-                  <button class="btn-secondary btn-small" @click="openEditReceipt(r)">✏️</button>
-                  <button class="btn-danger btn-small" @click="deleteReceipt(r.id)">🗑️</button>
+                  <button class="btn-secondary btn-small" @click="openEditReceipt(r)" title="Modifier"><svg-icon name="pencil" /></button>
+                  <button class="btn-danger btn-small" @click="deleteReceipt(r.id)" title="Supprimer"><svg-icon name="trash" /></button>
                 </td>
               </tr>
             </tbody>

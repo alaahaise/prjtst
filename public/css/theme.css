@@ -525,3 +525,18 @@ tr:hover td{ background:var(--bg); }
   padding:2px 6px;
   border-radius:6px;
 }
+
+/* ---------- SVG icons (replace emoji) ---------- */
+svg.icon{ width:1.1em; height:1.1em; vertical-align:-0.18em; margin-right:.35em; flex:0 0 auto; }
+.caspm-nav-icon{ display:inline-flex; align-items:center; justify-content:center; }
+.caspm-nav-icon svg.icon, .stat-icon svg.icon, .ic svg.icon, .empty-icon svg.icon, .caspm-menu-btn svg.icon,
+button:only-child > svg.icon:only-child{ margin-right:0; }
+.caspm-nav-icon svg.icon{ width:18px; height:18px; }
+.stat-icon svg.icon{ width:1em; height:1em; }
+.stat-icon{ display:flex; align-items:center; justify-content:center; }
+.empty-icon svg.icon{ width:1em; height:1em; vertical-align:middle; }
+.search-wrap .ic{ display:flex; align-items:center; }
+.btn-small svg.icon:only-child, .small-btn svg.icon:only-child{ margin-right:0; }
+button svg.icon{ margin-right:.4em; }
+button svg.icon:only-child{ margin-right:0; }
+

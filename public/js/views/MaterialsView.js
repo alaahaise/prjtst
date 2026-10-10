@@ -85,7 +85,7 @@ export default {
           <span class="count">{{ filtered.length }} sur {{ items.length }}</span>
         </div>
         <div class="toolbar">
-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par nom ou emplacement…"></div>
+          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par nom ou emplacement…"></div>
           <select v-model="statusFilter">
             <option value="">Tous les niveaux de stock</option>
             <option value="low">Stock bas uniquement</option>

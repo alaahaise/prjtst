@@ -1,0 +1,797 @@
+diff --git a/public/css/theme.css b/public/css/theme.css
+index acfaf30..faed76d 100644
+--- a/public/css/theme.css
++++ b/public/css/theme.css
+@@ -524,4 +524,19 @@ tr:hover td{ background:var(--bg); }
+   background:var(--bg);
+   padding:2px 6px;
+   border-radius:6px;
+-}
+\ No newline at end of file
++}
++
++/* ---------- SVG icons (replace emoji) ---------- */
++svg.icon{ width:1.1em; height:1.1em; vertical-align:-0.18em; margin-right:.35em; flex:0 0 auto; }
++.caspm-nav-icon{ display:inline-flex; align-items:center; justify-content:center; }
++.caspm-nav-icon svg.icon, .stat-icon svg.icon, .ic svg.icon, .empty-icon svg.icon, .caspm-menu-btn svg.icon,
++button:only-child > svg.icon:only-child{ margin-right:0; }
++.caspm-nav-icon svg.icon{ width:18px; height:18px; }
++.stat-icon svg.icon{ width:1em; height:1em; }
++.stat-icon{ display:flex; align-items:center; justify-content:center; }
++.empty-icon svg.icon{ width:1em; height:1em; vertical-align:middle; }
++.search-wrap .ic{ display:flex; align-items:center; }
++.btn-small svg.icon:only-child, .small-btn svg.icon:only-child{ margin-right:0; }
++button svg.icon{ margin-right:.4em; }
++button svg.icon:only-child{ margin-right:0; }
++
+diff --git a/public/js/components/ProductionModal.js b/public/js/components/ProductionModal.js
+index 2390493..d4cb888 100644
+--- a/public/js/components/ProductionModal.js
++++ b/public/js/components/ProductionModal.js
+@@ -389,7 +389,7 @@ export default {
+             <div class="materials-section">
+               <h4>Matières premières utilisées *</h4>
+               <button class="btn-secondary btn-small" @click="fillFromRecipe(entry)" :disabled="loading">
+-                ⚡ Remplir depuis la formule
++                <svg-icon name="zap" /> Remplir depuis la formule
+               </button>
+ 
+               <div v-for="(row, ridx) in entry.itemRows" :key="ridx" class="material-row">
+diff --git a/public/js/components/ReceivingModal.js b/public/js/components/ReceivingModal.js
+index d55098a..578ece3 100644
+--- a/public/js/components/ReceivingModal.js
++++ b/public/js/components/ReceivingModal.js
+@@ -138,7 +138,7 @@ export default {
+     <div v-if="show" class="modal-overlay" @click.self="close">
+       <div class="modal-content" style="max-width: 720px;">
+         <div class="modal-header">
+-          <h2>📦 Réceptionner en stock</h2>
++          <h2><svg-icon name="package" /> Réceptionner en stock</h2>
+           <button class="modal-close" @click="close">×</button>
+         </div>
+ 
+diff --git a/public/js/icons.js b/public/js/icons.js
+new file mode 100644
+index 0000000..10623c1
+--- /dev/null
++++ b/public/js/icons.js
+@@ -0,0 +1,40 @@
++// Inline SVG icon set (24x24, stroke-based, inherits currentColor).
++// Usage in any template:  <svg-icon name="download" />
++const ICONS = {
++  'layout-dashboard': '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
++  'package': '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
++  'tag': '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
++  'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
++  'shopping-cart': '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
++  'settings': '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
++  'banknote': '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
++  'wrench': '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/>',
++  'arrow-left-right': '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
++  'book-open': '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
++  'menu': '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
++  'search': '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
++  'download': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
++  'printer': '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
++  'pencil': '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
++  'trash': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
++  'refresh': '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
++  'alert': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
++  'clipboard-list': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
++  'zap': '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
++  'inbox': '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
++  'chevron-left': '<path d="m15 18-6-6 6-6"/>',
++  'chevron-right': '<path d="m9 18 6-6-6-6"/>'
++};
++
++export default {
++  name: 'SvgIcon',
++  props: {
++    name: { type: String, required: true },
++    size: { type: [Number, String], default: null }
++  },
++  computed: {
++    inner() { return ICONS[this.name] || ''; },
++    style() { return this.size ? { width: this.size + 'px', height: this.size + 'px' } : null; }
++  },
++  template: `<svg class="icon" :style="style" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" v-html="inner"></svg>`
++};
+diff --git a/public/js/main.js b/public/js/main.js
+index a5e267a..8bd5117 100644
+--- a/public/js/main.js
++++ b/public/js/main.js
+@@ -1,7 +1,9 @@
+ import { createApp } from 'vue';
+ import App from './App.js';
+ import { router } from './router.js';
++import SvgIcon from './icons.js';
+ 
+ const app = createApp(App);
++app.component('SvgIcon', SvgIcon);
+ app.use(router);
+ app.mount('#app');
+diff --git a/public/js/router.js b/public/js/router.js
+index 10d2686..f22a59d 100644
+--- a/public/js/router.js
++++ b/public/js/router.js
+@@ -4,7 +4,6 @@ import { authState, fetchMe } from './auth.js';
+ import LoginView from './views/LoginView.js';
+ import AppShell from './views/AppShellNew.js';
+ import DashboardView from './views/DashboardView.js';
+-import DailyStockView from './views/DailyStockView.js';
+ import MaterialsView from './views/MaterialsView.js';
+ import ProductsView from './views/ProductsView.js';
+ import RecipesView from './views/RecipesView.js';
+@@ -23,7 +22,6 @@ const routes = [
+     children: [
+       { path: '', redirect: '/dashboard' },
+       { path: 'dashboard', name: 'dashboard', component: DashboardView },
+-      { path: 'daily-stock', name: 'daily-stock', component: DailyStockView },
+       { path: 'materials', name: 'materials', component: MaterialsView },
+       { path: 'products', name: 'products', component: ProductsView },
+       { path: 'recipes', name: 'recipes', component: RecipesView },
+diff --git a/public/js/views/AdjustmentsView.js b/public/js/views/AdjustmentsView.js
+index 788f8a2..7dcb93b 100644
+--- a/public/js/views/AdjustmentsView.js
++++ b/public/js/views/AdjustmentsView.js
+@@ -1,5 +1,5 @@
+ import { api } from '../api.js';
+-import { fmt, sortRows, inRange, exportCSV, todayStr, formatDate, relativeLabel } from '../helpers.js';
++import { fmt, sortRows, matchesText, inRange, exportCSV, todayStr, formatDate, relativeLabel } from '../helpers.js';
+ import { toast } from '../toast.js';
+ 
+ const REASONS = ['Inventaire', 'Correction de production', 'Endommagé', 'Perdu', 'Transfert', 'Correction ERP', 'Autre'];
+@@ -14,6 +14,7 @@ export default {
+       reasons: REASONS,
+       typeFilter: '',
+       reasonFilter: '',
++      search: '',
+       from: '',
+       to: '',
+       sort: { key: 'adjustment_date', type: 'date', dir: -1 },
+@@ -29,6 +30,7 @@ export default {
+       const rows = this.items.filter(a =>
+         (!this.typeFilter || a.material_type === this.typeFilter) &&
+         (!this.reasonFilter || a.reason === this.reasonFilter) &&
++        matchesText(a, ['material_name', 'remark', 'reason'], this.search.trim()) &&
+         inRange(a.adjustment_date, this.from, this.to));
+       return sortRows(rows, this.sort.key, this.sort.dir, this.sort.type);
+     }
+@@ -72,8 +74,8 @@ export default {
+       }
+     },
+     doExport() {
+-      exportCSV('adjustments.csv', ['Date', 'Type', 'Conditionnement', 'Quantite', 'Raison', 'Remarque'],
+-        this.filtered.map(a => [a.adjustment_date?.slice(0, 10), a.material_type, a.packaging_name || '', a.quantity, a.reason, a.remark]));
++      exportCSV('adjustments.csv', ['Date', 'Type', 'Matiere', 'Conditionnement', 'Quantite', 'Raison', 'Remarque'],
++        this.filtered.map(a => [a.adjustment_date?.slice(0, 10), a.material_type, a.material_name || '', a.packaging_name || '', a.quantity, a.reason, a.remark]));
+     }
+   },
+   template: `
+@@ -117,6 +119,10 @@ export default {
+           <span class="count">{{ filtered.length }} sur {{ items.length }}</span>
+         </div>
+         <div class="toolbar">
++          <div class="search-wrap">
++            <span class="ic"><svg-icon name="search" /></span>
++            <input type="search" v-model="search" placeholder="Rechercher par matière, raison, remarque…">
++          </div>
+           <select v-model="typeFilter">
+             <option value="">Tous les types</option>
+             <option value="RAW">Matière première</option>
+@@ -134,13 +140,14 @@ export default {
+           <thead><tr>
+             <th :class="sortClass('adjustment_date')" @click="toggleSort('adjustment_date','date')">Date</th>
+             <th :class="sortClass('material_type')" @click="toggleSort('material_type','text')">Type</th>
++            <th :class="sortClass('material_name')" @click="toggleSort('material_name','text')">Matière</th>
+             <th :class="sortClass('packaging_name')" @click="toggleSort('packaging_name','text')">Conditionnement</th>
+             <th class="num-cell" :class="sortClass('quantity')" @click="toggleSort('quantity','number')">Qté</th>
+             <th :class="sortClass('reason')" @click="toggleSort('reason','text')">Raison</th>
+             <th>Remarque</th>
+           </tr></thead>
+           <tbody>
+-            <tr v-if="!filtered.length"><td colspan="6" class="empty"><span class="big">—</span>Aucun ajustement ne correspond — enregistrez-en un ci-dessus ou effacez les filtres</td></tr>
++            <tr v-if="!filtered.length"><td colspan="7" class="empty"><span class="big">—</span>Aucun ajustement ne correspond — enregistrez-en un ci-dessus ou effacez les filtres</td></tr>
+             <tr v-for="a in filtered" :key="a.id">
+               <td>
+                 <div class="date-cell">
+@@ -149,6 +156,7 @@ export default {
+                 </div>
+               </td>
+               <td><span class="pill" :class="a.material_type">{{ a.material_type }}</span></td>
++              <td class="text">{{ a.material_name || '—' }}</td>
+               <td>
+                 <span v-if="a.material_type === 'RAW' && a.packaging_name" class="pill" :class="a.packaging_name">{{ a.packaging_name }}</span>
+                 <span v-else>—</span>
+diff --git a/public/js/views/AppShellNew.js b/public/js/views/AppShellNew.js
+index 3265809..d84d321 100644
+--- a/public/js/views/AppShellNew.js
++++ b/public/js/views/AppShellNew.js
+@@ -9,17 +9,16 @@ export default {
+       toastState,
+       sidebarOpen: false,
+       navItems: [
+-        { path: '/dashboard', label: 'Tableau de bord', icon: '📊' },
+-        { path: '/daily-stock', label: 'Stock quotidien', icon: '📈' },
+-        { path: '/materials', label: 'Matières premières', icon: '📦' },
+-        { path: '/products', label: 'Produits finis', icon: '🏷️' },
+-        { path: '/recipes', label: 'Formules', icon: '📜' },
+-        { path: '/purchases', label: 'Achats', icon: '🛒' },
+-        { path: '/production', label: 'Production', icon: '⚙️' },
+-        { path: '/sales', label: 'Ventes', icon: '💰' },
+-        { path: '/adjustments', label: 'Ajustements', icon: '🔧' },
+-        { path: '/transfers', label: 'Transferts', icon: '🔄' },
+-        { path: '/ledger', label: 'Grand livre', icon: '📒' }
++        { path: '/dashboard', label: 'Tableau de bord', icon: 'layout-dashboard' },
++        { path: '/materials', label: 'Matières premières', icon: 'package' },
++        { path: '/products', label: 'Produits finis', icon: 'tag' },
++        { path: '/recipes', label: 'Formules', icon: 'file-text' },
++        { path: '/purchases', label: 'Achats', icon: 'shopping-cart' },
++        { path: '/production', label: 'Production', icon: 'settings' },
++        { path: '/sales', label: 'Ventes', icon: 'banknote' },
++        { path: '/adjustments', label: 'Ajustements', icon: 'wrench' },
++        { path: '/transfers', label: 'Transferts', icon: 'arrow-left-right' },
++        { path: '/ledger', label: 'Grand livre', icon: 'book-open' }
+       ]
+     };
+   },
+@@ -51,7 +50,7 @@ export default {
+       <!-- TOP BAR -->
+       <header class="caspm-topbar">
+         <div class="caspm-brand">
+-          <button class="caspm-menu-btn" @click="toggleSidebar" aria-label="Menu">☰</button>
++          <button class="caspm-menu-btn" @click="toggleSidebar" aria-label="Menu"><svg-icon name="menu" /></button>
+           <img src="/images/logo.png" alt="CASPM" style="border-radius:6px; max-height:36px; width:auto;">
+           <div>
+             <h1>STOCK.</h1>
+@@ -86,7 +85,7 @@ export default {
+             exact-active-class="active"
+             @click="closeSidebar"
+           >
+-            <span class="caspm-nav-icon">{{ item.icon }}</span>
++            <span class="caspm-nav-icon"><svg-icon :name="item.icon" /></span>
+             <span class="caspm-nav-label">{{ item.label }}</span>
+           </router-link>
+         </nav>
+diff --git a/public/js/views/DailyStockView.js b/public/js/views/DailyStockView.js
+deleted file mode 100644
+index 720c93e..0000000
+--- a/public/js/views/DailyStockView.js
++++ /dev/null
+@@ -1,136 +0,0 @@
+-import { api } from '../api.js';
+-import { fmt, printReport } from '../helpers.js';
+-import { toast } from '../toast.js';
+-
+-export default {
+-  name: 'DailyStockView',
+-  data() {
+-    return {
+-      rawRows: [],
+-      finishedRows: []
+-    };
+-  },
+-  async mounted() {
+-    await this.load();
+-  },
+-  methods: {
+-    fmt,
+-    async load() {
+-      try {
+-        this.rawRows = await api('/raw-materials/grouped-totals');
+-      } catch (err) {
+-        this.rawRows = [];
+-        toast('Impossible de charger le stock quotidien des matières premières : ' + err.message, false);
+-      }
+-      try {
+-        this.finishedRows = await api('/finished-products/grouped-totals');
+-      } catch {
+-        this.finishedRows = [];
+-      }
+-    },
+-    printRaw() {
+-      printReport('État du jour — Matières premières', [
+-        { key: 'group_name', label: 'Désignation' },
+-        { key: 'unite_a_display', label: 'Unité A', num: true },
+-        { key: 'unite_b_display', label: 'Unité B', num: true },
+-        { key: 'vrac_display', label: 'Vrac (central)', num: true },
+-        { key: 'sac_display', label: 'Sac (central)', num: true },
+-        { key: 'total_display', label: 'Total', num: true },
+-        { key: 'note_display', label: 'Note' }
+-      ], this.rawRows.map(r => ({
+-        group_name: r.group_name,
+-        unite_a_display: fmt(r.unite_a_stock),
+-        unite_b_display: fmt(r.unite_b_stock),
+-        vrac_display: fmt(r.central_vrac_stock),
+-        sac_display: fmt(r.central_sac_stock),
+-        total_display: `${fmt(r.total_stock)} ${r.unit}`,
+-        note_display: r.low_stock ? 'manque de matière' : ''
+-      })));
+-    },
+-    printFinished() {
+-      printReport('État du jour — Produits finis', [
+-        { key: 'group_name', label: 'Produit' },
+-        { key: 'variants_display', label: 'Détail' },
+-        { key: 'total_stock_display', label: 'Stock total', num: true }
+-      ], this.finishedRows.map(r => ({
+-        group_name: r.group_name,
+-        variants_display: (r.variants && r.variants.includes(' + ')) ? r.variants : '—',
+-        total_stock_display: `${fmt(r.total_stock)} ${r.unit}`
+-      })));
+-    }
+-  },
+-  template: `
+-    <div>
+-      <div class="panel">
+-        <div class="panel-head">
+-          <h2 style="margin:0;border:none;padding:0;">État du jour — Matières premières</h2>
+-          <span class="count">{{ rawRows.length }} lignes</span>
+-        </div>
+-        <p style="font-family:'IBM Plex Mono',monospace; font-size:11px; opacity:.55; margin:0 0 12px;">
+-          Stock regroupé par matière. Colonne Sac / Vrac = conditionnement au stock central.
+-        </p>
+-        <div class="toolbar">
+-          <span class="spacer"></span>
+-          <button class="ghost small-btn" type="button" @click="printRaw">🖨 Imprimer ce rapport</button>
+-        </div>
+-        <div class="tbl-wrap">
+-          <table class="daily-table">
+-            <thead>
+-              <tr class="group-row">
+-                <th rowspan="2" style="text-align:left;">Désignation</th>
+-                <th class="grp-celon" colspan="2">Celon</th>
+-                <th class="grp-stock" colspan="2">Stockage Central</th>
+-                <th class="grp-total num-cell" rowspan="2">Total</th>
+-                <th rowspan="2">Note</th>
+-              </tr>
+-              <tr class="group-row">
+-                <th class="grp-celon num-cell">Unité A</th>
+-                <th class="grp-celon num-cell">Unité B</th>
+-                <th class="grp-stock num-cell">Vrac</th>
+-                <th class="grp-stock num-cell">Sac</th>
+-              </tr>
+-            </thead>
+-            <tbody>
+-              <tr v-if="!rawRows.length"><td colspan="7" class="empty"><span class="big">—</span>Aucune matière première</td></tr>
+-              <tr v-for="r in rawRows" :key="r.group_name" :class="r.low_stock ? 'low-row' : ''">
+-                <td class="text">{{ r.group_name }}</td>
+-                <td class="num-cell">{{ fmt(r.unite_a_stock) }}</td>
+-                <td class="num-cell">{{ fmt(r.unite_b_stock) }}</td>
+-                <td class="num-cell">{{ fmt(r.central_vrac_stock) }}</td>
+-                <td class="num-cell">{{ fmt(r.central_sac_stock) }}</td>
+-                <td class="num-cell"><strong>{{ fmt(r.total_stock) }}</strong> {{ r.unit }}</td>
+-                <td><span v-if="r.low_stock" class="note-missing">manque de matière</span></td>
+-              </tr>
+-            </tbody>
+-          </table>
+-        </div>
+-      </div>
+-
+-      <div class="panel">
+-        <div class="panel-head">
+-          <h2 style="margin:0;border:none;padding:0;">État du jour — Produits finis</h2>
+-          <span class="count">{{ finishedRows.length }} lignes</span>
+-        </div>
+-        <div class="toolbar">
+-          <span class="spacer"></span>
+-          <button class="ghost small-btn" type="button" @click="printFinished">🖨 Imprimer ce rapport</button>
+-        </div>
+-        <div class="tbl-wrap">
+-          <table>
+-            <thead><tr>
+-              <th>Produit / Groupe</th><th>Détail (variantes)</th><th class="num-cell">Stock total</th>
+-            </tr></thead>
+-            <tbody>
+-              <tr v-if="!finishedRows.length"><td colspan="3" class="empty"><span class="big">—</span>Aucun produit fini</td></tr>
+-              <tr v-for="r in finishedRows" :key="r.group_name">
+-                <td class="text">{{ r.group_name }}</td>
+-                <td class="text" style="opacity:.6; font-size:12px;">{{ (r.variants && r.variants.includes(' + ')) ? r.variants : '—' }}</td>
+-                <td class="num-cell">{{ fmt(r.total_stock) }} {{ r.unit }}</td>
+-              </tr>
+-            </tbody>
+-          </table>
+-        </div>
+-      </div>
+-    </div>
+-  `
+-};
+diff --git a/public/js/views/DashboardView.js b/public/js/views/DashboardView.js
+index 47b9ca5..f75ef3f 100644
+--- a/public/js/views/DashboardView.js
++++ b/public/js/views/DashboardView.js
+@@ -34,21 +34,21 @@ export default {
+     <h2>Aperçu du jour</h2>
+     <div class="stats-grid" v-if="summary">
+       <div class="stat-card stat-card-main">
+-        <div class="stat-icon">📦</div>
++        <div class="stat-icon"><svg-icon name="package" /></div>
+         <div class="stat-content">
+           <span class="stat-number">{{ summary.raw_material_count }}</span>
+           <span class="stat-label">Matières premières</span>
+         </div>
+       </div>
+       <div class="stat-card stat-card-main">
+-        <div class="stat-icon">🏷️</div>
++        <div class="stat-icon"><svg-icon name="tag" /></div>
+         <div class="stat-content">
+           <span class="stat-number">{{ summary.finished_product_count }}</span>
+           <span class="stat-label">Produits finis</span>
+         </div>
+       </div>
+       <div class="stat-card" :class="summary.low_stock_count > 0 ? 'stat-card-main' : 'stat-card-unit'">
+-        <div class="stat-icon">⚠️</div>
++        <div class="stat-icon"><svg-icon name="alert" /></div>
+         <div class="stat-content">
+           <span class="stat-number">{{ summary.low_stock_count }}</span>
+           <span class="stat-label">Articles en stock bas</span>
+diff --git a/public/js/views/LedgerView.js b/public/js/views/LedgerView.js
+index 10b0831..e344f75 100644
+--- a/public/js/views/LedgerView.js
++++ b/public/js/views/LedgerView.js
+@@ -238,14 +238,14 @@ async load() {
+     <div>
+       <div class="panel">
+         <div class="panel-head">
+-          <h2 style="margin:0;border:none;padding:0;">📒 Journal des mouvements de stock</h2>
++          <h2 style="margin:0;border:none;padding:0;"><svg-icon name="book-open" /> Journal des mouvements de stock</h2>
+           <span class="count">{{ items.length }} sur {{ total }}</span>
+         </div>
+ 
+         <!-- Toolbar with filters -->
+         <div class="toolbar">
+           <div class="search-wrap">
+-            <span class="ic">⌕</span>
++            <span class="ic"><svg-icon name="search" /></span>
+             <input type="search" v-model="search" placeholder="Rechercher par matière ou remarque…">
+           </div>
+ 
+@@ -272,7 +272,7 @@ async load() {
+           </select>
+ 
+           <button class="btn-secondary btn-small" @click="load" :disabled="loading">
+-            ⟳ {{ loading ? 'Chargement…' : 'Actualiser' }}
++            <svg-icon name="refresh" /> {{ loading ? 'Chargement…' : 'Actualiser' }}
+           </button>
+           <button class="btn-secondary btn-small" @click="clearFilters">Effacer filtres</button>
+         </div>
+@@ -292,8 +292,8 @@ async load() {
+             </select>
+           </div>
+           <span class="spacer"></span>
+-          <button class="ghost small-btn" @click="doExport">📥 CSV</button>
+-          <button class="ghost small-btn" @click="doPrint">🖨️ Imprimer</button>
++          <button class="ghost small-btn" @click="doExport"><svg-icon name="download" /> CSV</button>
++          <button class="ghost small-btn" @click="doPrint"><svg-icon name="printer" /> Imprimer</button>
+         </div>
+ 
+         <!-- Table -->
+@@ -367,9 +367,9 @@ async load() {
+         <!-- Pagination controls -->
+         <div v-if="totalPages > 1" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding:8px 0; border-top:1px solid var(--rule);">
+           <div>
+-            <button class="btn-secondary btn-small" @click="prevPage" :disabled="page === 1 || loading">◀ Précédent</button>
++            <button class="btn-secondary btn-small" @click="prevPage" :disabled="page === 1 || loading"><svg-icon name="chevron-left" /> Précédent</button>
+             <span style="margin:0 12px; font-size:13px;">Page {{ page }} / {{ totalPages }}</span>
+-            <button class="btn-secondary btn-small" @click="nextPage" :disabled="page === totalPages || loading">Suivant ▶</button>
++            <button class="btn-secondary btn-small" @click="nextPage" :disabled="page === totalPages || loading">Suivant <svg-icon name="chevron-right" /></button>
+           </div>
+           <div style="font-size:12px; opacity:0.6;">
+             {{ total }} mouvements au total
+diff --git a/public/js/views/MaterialsView.js b/public/js/views/MaterialsView.js
+index 453d7ca..ccca5b4 100644
+--- a/public/js/views/MaterialsView.js
++++ b/public/js/views/MaterialsView.js
+@@ -85,7 +85,7 @@ export default {
+           <span class="count">{{ filtered.length }} sur {{ items.length }}</span>
+         </div>
+         <div class="toolbar">
+-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par nom ou emplacement…"></div>
++          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par nom ou emplacement…"></div>
+           <select v-model="statusFilter">
+             <option value="">Tous les niveaux de stock</option>
+             <option value="low">Stock bas uniquement</option>
+diff --git a/public/js/views/ProductionView.js b/public/js/views/ProductionView.js
+index 96dcbc2..cdc35b3 100644
+--- a/public/js/views/ProductionView.js
++++ b/public/js/views/ProductionView.js
+@@ -52,6 +52,16 @@ export default {
+       }
+ };
+   },
++  watch: {
++    // when the grouping changes, pick a sensible default order
++    groupBy(v) {
++      if (['day', 'month', 'year'].includes(v)) {
++        this.groupSortKey = 'sort_key'; this.groupSortType = 'text'; this.groupSortDir = -1; // newest first
++      } else if (v !== 'none') {
++        this.groupSortKey = 'total_produced'; this.groupSortType = 'number'; this.groupSortDir = -1;
++      }
++    }
++  },
+   computed: {
+     units() {
+       return [...new Set(this.items.map(r => r.location_code).filter(Boolean))];
+@@ -126,7 +136,8 @@ const rows = [...map.values()].map(g => ({
+         runs: g.runs,
+         total_produced: g.total_produced,
+         unit: g.unit,
+-        sort_key: g.group_label,
++        // chronological groups sort on their YYYY-MM / YYYY-MM-DD key, not on the French label
++        sort_key: ['day', 'month', 'year'].includes(this.groupBy) ? g.sort_key : g.group_label,
+         materials: [...g.materialsMap.entries()]
+           .map(([name, v]) => ({ name, qty: v.qty, unit: v.unit }))
+           .sort((a, b) => b.qty - a.qty)
+@@ -375,7 +386,7 @@ toggleGroupSort(key, type) {
+         </div>
+         <div class="view-header-right">
+           <button class="btn-primary" @click="openModal">+ Nouvelle production</button>
+-          <button class="btn-secondary" @click="refresh" :disabled="loading">⟳ Actualiser</button>
++          <button class="btn-secondary" @click="refresh" :disabled="loading"><svg-icon name="refresh" /> Actualiser</button>
+         </div>
+       </div>
+ 
+@@ -383,7 +394,7 @@ toggleGroupSort(key, type) {
+       <!-- Filters & toolbar -->
+       <div class="toolbar">
+         <div class="search-wrap">
+-          <span class="ic">⌕</span>
++          <span class="ic"><svg-icon name="search" /></span>
+           <input type="search" v-model="search" placeholder="Rechercher par produit, note...">
+         </div>
+         
+@@ -423,9 +434,9 @@ toggleGroupSort(key, type) {
+         </select>
+ 
+         <div class="toolbar-actions">
+-          <button class="btn-secondary btn-small" @click="exportCSV">📥 CSV</button>
+-          <button class="btn-secondary btn-small" @click="generateReport">📄 Rapport</button>
+-          <button class="btn-secondary btn-small" @click="exportPrintReport">🖨️ Imprimer</button>
++          <button class="btn-secondary btn-small" @click="exportCSV"><svg-icon name="download" /> CSV</button>
++          <button class="btn-secondary btn-small" @click="generateReport"><svg-icon name="file-text" /> Rapport</button>
++          <button class="btn-secondary btn-small" @click="exportPrintReport"><svg-icon name="printer" /> Imprimer</button>
+         </div>
+       </div>
+ 
+@@ -452,7 +463,7 @@ toggleGroupSort(key, type) {
+             <tbody>
+               <tr v-if="!filtered.length">
+                 <td :colspan="groupBy === 'none' ? 6 : 4" class="empty">
+-                  <span class="empty-icon">📦</span>
++                  <span class="empty-icon"><svg-icon name="inbox" /></span>
+                   <span>Aucun lot de production trouvé</span>
+                   <span class="empty-hint">Ajustez vos filtres ou créez une nouvelle production</span>
+                 </td>
+diff --git a/public/js/views/ProductsView.js b/public/js/views/ProductsView.js
+index 07b2eff..6de4ee6 100644
+--- a/public/js/views/ProductsView.js
++++ b/public/js/views/ProductsView.js
+@@ -194,7 +194,7 @@ filteredReceipts() {
+         <div class="view-header-right">
+           <button class="btn-primary" @click="openReceivingModal">+ Mettre à jour le stock</button>
+           <button class="btn-secondary" @click="openAddProductModal">Ajouter un nouveau produit</button>
+-          <button class="btn-secondary" @click="load">⟳ Actualiser</button>
++          <button class="btn-secondary" @click="load"><svg-icon name="refresh" /> Actualiser</button>
+         </div>
+       </div>
+ 
+@@ -213,7 +213,7 @@ filteredReceipts() {
+           :class="{ active: activeTab === 'receipts' }"
+           @click="activeTab = 'receipts'"
+         >
+-          📋 Historique des réceptions
++          <svg-icon name="clipboard-list" /> Historique des réceptions
+           <span class="tab-count">{{ receipts.length }}</span>
+         </button>
+       </div>
+@@ -225,7 +225,7 @@ filteredReceipts() {
+           <span class="count">{{ filtered.length }} sur {{ items.length }}</span>
+         </div>
+ <div class="toolbar">
+-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par nom…"></div>
++          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par nom…"></div>
+           <div class="filter-group">
+             <select v-model="filterProduct" multiple size="1" class="filter-select-sm">
+               <option v-for="p in items" :key="p.id" :value="String(p.id)">{{ p.name }}</option>
+@@ -256,13 +256,13 @@ filteredReceipts() {
+       <!-- RECEIPT HISTORY -->
+       <div class="panel" v-if="activeTab === 'receipts'">
+         <div class="panel-head">
+-          <h2 style="margin:0;border:none;padding:0;">📋 Historique des réceptions</h2>
++          <h2 style="margin:0;border:none;padding:0;"><svg-icon name="clipboard-list" /> Historique des réceptions</h2>
+           <span class="count">{{ filteredReceipts.length }} sur {{ receipts.length }}</span>
+         </div>
+ 
+ <div class="toolbar">
+           <div class="search-wrap">
+-            <span class="ic">⌕</span>
++            <span class="ic"><svg-icon name="search" /></span>
+             <input type="search" v-model="receiptSearch" placeholder="Rechercher par produit…">
+           </div>
+           <div class="date-range">
+@@ -299,8 +299,8 @@ filteredReceipts() {
+                 <td class="num-cell pos">+{{ fmt(r.quantity) }} {{ r.unit }}</td>
+                 <td>{{ r.note || '—' }}</td>
+                 <td>
+-                  <button class="btn-secondary btn-small" @click="openEditReceipt(r)">✏️</button>
+-                  <button class="btn-danger btn-small" @click="deleteReceipt(r.id)">🗑️</button>
++                  <button class="btn-secondary btn-small" @click="openEditReceipt(r)" title="Modifier"><svg-icon name="pencil" /></button>
++                  <button class="btn-danger btn-small" @click="deleteReceipt(r.id)" title="Supprimer"><svg-icon name="trash" /></button>
+                 </td>
+               </tr>
+             </tbody>
+diff --git a/public/js/views/PurchasesView.js b/public/js/views/PurchasesView.js
+index 3a18c04..a05783c 100644
+--- a/public/js/views/PurchasesView.js
++++ b/public/js/views/PurchasesView.js
+@@ -128,7 +128,7 @@ export default {
+           <span class="count">{{ filtered.length }} sur {{ items.length }}</span>
+         </div>
+         <div class="toolbar">
+-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par matière, fournisseur, note…"></div>
++          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par matière, fournisseur, note…"></div>
+           <div class="date-range">du <input type="date" v-model="from"> au <input type="date" v-model="to"></div>
+           <span class="spacer"></span>
+           <button class="ghost small-btn" type="button" @click="doExport">Exporter CSV</button>
+diff --git a/public/js/views/RecipesView.js b/public/js/views/RecipesView.js
+index ffc0754..a89ebde 100644
+--- a/public/js/views/RecipesView.js
++++ b/public/js/views/RecipesView.js
+@@ -145,7 +145,7 @@ export default {
+           <span class="count">{{ filteredRecipes.length }} sur {{ recipes.length }}</span>
+         </div>
+         <div class="toolbar">
+-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par produit fini…"></div>
++          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par produit fini…"></div>
+         </div>
+         <div v-if="!filteredRecipes.length" class="empty"><span class="big">—</span>Aucune Formule ne correspond</div>
+         <div v-for="r in filteredRecipes" :key="r.id" style="margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--rule);">
+diff --git a/public/js/views/SalesView.js b/public/js/views/SalesView.js
+index b8bd7ba..2301b1f 100644
+--- a/public/js/views/SalesView.js
++++ b/public/js/views/SalesView.js
+@@ -86,7 +86,7 @@ export default {
+           <span class="count">{{ filtered.length }} sur {{ items.length }}</span>
+         </div>
+         <div class="toolbar">
+-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par produit, client, note…"></div>
++          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par produit, client, note…"></div>
+           <div class="date-range">du <input type="date" v-model="from"> au <input type="date" v-model="to"></div>
+           <span class="spacer"></span>
+           <button class="ghost small-btn" type="button" @click="doExport">Exporter CSV</button>
+diff --git a/public/js/views/TransfersView.js b/public/js/views/TransfersView.js
+index fb2f53b..cbb32a0 100644
+--- a/public/js/views/TransfersView.js
++++ b/public/js/views/TransfersView.js
+@@ -1,5 +1,5 @@
+ import { api } from '../api.js';
+-import { fmt, sortRows, todayStr, formatDate, relativeLabel } from '../helpers.js';
++import { fmt, sortRows, matchesText, inRange, exportCSV, formatDate, relativeLabel } from '../helpers.js';
+ import { toast } from '../toast.js';
+ import TransferModal from '../components/TransferModal.js';
+ 
+@@ -12,6 +12,11 @@ export default {
+     return {
+       materials: [],
+       items: [],
++      search: '',
++      from: '',
++      to: '',
++      fromFilter: '',
++      toFilter: '',
+       sort: { key: 'transfer_date', type: 'date', dir: -1 },
+       showModal: false,
+       editingTransfer: null,
+@@ -22,8 +27,19 @@ export default {
+     multiMaterials() {
+       return this.materials.filter(m => m.stock_mode === 'MULTI');
+     },
++    fromCodes() {
++      return [...new Set(this.items.map(t => t.from_code).filter(Boolean))].sort();
++    },
++    toCodes() {
++      return [...new Set(this.items.map(t => t.to_code).filter(Boolean))].sort();
++    },
+     sortedRows() {
+-      return sortRows(this.items, this.sort.key, this.sort.dir, this.sort.type);
++      const rows = this.items.filter(t =>
++        matchesText(t, ['raw_material_name', 'note', 'from_code', 'from_name', 'to_code', 'to_name', 'packaging_name'], this.search.trim()) &&
++        (!this.fromFilter || t.from_code === this.fromFilter) &&
++        (!this.toFilter || t.to_code === this.toFilter) &&
++        inRange(t.transfer_date, this.from, this.to));
++      return sortRows(rows, this.sort.key, this.sort.dir, this.sort.type);
+     }
+   },
+   async mounted() {
+@@ -59,6 +75,13 @@ export default {
+       if (this.sort.key !== key) return '';
+       return this.sort.dir === 1 ? 'sort-asc' : 'sort-desc';
+     },
++    clearFilters() {
++      this.search = ''; this.from = ''; this.to = ''; this.fromFilter = ''; this.toFilter = '';
++    },
++    doExport() {
++      exportCSV('transferts.csv', ['Date', 'Matiere', 'Conditionnement', 'De', 'Vers', 'Quantite', 'Unite', 'Note'],
++        this.sortedRows.map(t => [t.transfer_date, t.raw_material_name, t.packaging_name || '', t.from_code, t.to_code, t.quantity, t.unit, t.note || '']));
++    },
+     openModal() {
+       this.editingTransfer = null;
+       this.showModal = true;
+@@ -94,15 +117,37 @@ export default {
+       <div class="view-header">
+         <div class="view-header-left">
+           <h1>Transferts</h1>
+-          <span class="view-count">{{ items.length }}</span>
++          <span class="view-count">{{ sortedRows.length === items.length ? items.length : sortedRows.length + ' / ' + items.length }}</span>
+         </div>
+         <div class="view-header-right">
+           <button class="btn-primary" @click="openModal">+ Nouveau transfert</button>
+-          <button class="btn-secondary" @click="refresh" :disabled="loading">⟳ Actualiser</button>
++          <button class="btn-secondary" @click="refresh" :disabled="loading"><svg-icon name="refresh" /> Actualiser</button>
+         </div>
+       </div>
+ 
+       <div class="panel">
++        <div class="toolbar">
++          <div class="search-wrap">
++            <span class="ic"><svg-icon name="search" /></span>
++            <input type="search" v-model="search" placeholder="Rechercher par matière, note, lieu…">
++          </div>
++          <div class="date-range">
++            <input type="date" v-model="from" title="Du">
++            <span>→</span>
++            <input type="date" v-model="to" title="Au">
++          </div>
++          <select v-model="fromFilter">
++            <option value="">De : tous</option>
++            <option v-for="c in fromCodes" :key="c" :value="c">{{ c }}</option>
++          </select>
++          <select v-model="toFilter">
++            <option value="">Vers : tous</option>
++            <option v-for="c in toCodes" :key="c" :value="c">{{ c }}</option>
++          </select>
++          <button class="btn-secondary btn-small" type="button" @click="clearFilters">Effacer filtres</button>
++          <span class="spacer"></span>
++          <button class="ghost small-btn" type="button" @click="doExport"><svg-icon name="download" /> CSV</button>
++        </div>
+         <div class="scroll-table">
+           <table>
+             <thead>
+@@ -119,7 +164,7 @@ export default {
+             </thead>
+             <tbody>
+               <tr v-if="!sortedRows.length">
+-                <td colspan="8" class="empty"><span class="big">—</span>Aucun transfert</td>
++                <td colspan="8" class="empty"><span class="big">—</span>{{ items.length ? 'Aucun transfert ne correspond aux filtres' : 'Aucun transfert' }}</td>
+               </tr>
+               <tr v-for="t in sortedRows" :key="t.id">
+                 <td>
+@@ -135,8 +180,8 @@ export default {
+                 <td class="num-cell">{{ fmt(t.quantity) }} {{ t.unit }}</td>
+                 <td class="text">{{ t.note || '—' }}</td>
+                 <td>
+-                  <button class="btn-secondary btn-small" @click="editTransfer(t)">✏️</button>
+-                  <button class="btn-danger btn-small" @click="deleteTransfer(t.id)">🗑️</button>
++                  <button class="btn-secondary btn-small" @click="editTransfer(t)" title="Modifier"><svg-icon name="pencil" /></button>
++                  <button class="btn-danger btn-small" @click="deleteTransfer(t.id)" title="Supprimer"><svg-icon name="trash" /></button>
+                 </td>
+               </tr>
+             </tbody>
+diff --git a/routes/adjustments.js b/routes/adjustments.js
+index 328ff0b..1d035d9 100644
+--- a/routes/adjustments.js
++++ b/routes/adjustments.js
+@@ -5,9 +5,13 @@ const pool = require('../db/pool');
+ router.get('/', async (req, res) => {
+   try {
+     const [rows] = await pool.query(
+-      `SELECT sa.*, pkg.name AS packaging_name
++      `SELECT sa.*, pkg.name AS packaging_name,
++              CASE WHEN sa.material_type = 'RAW' THEN rm.name ELSE fp.name END AS material_name,
++              CASE WHEN sa.material_type = 'RAW' THEN rm.unit ELSE fp.unit END AS unit
+        FROM stock_adjustments sa
+        LEFT JOIN packaging pkg ON pkg.id = sa.packaging_id
++       LEFT JOIN raw_materials rm ON sa.material_type = 'RAW' AND rm.id = sa.material_id
++       LEFT JOIN finished_products fp ON sa.material_type = 'FINISHED' AND fp.id = sa.material_id
+        ORDER BY sa.adjustment_date DESC, sa.id DESC`
+     );
+     res.json(rows);

@@ -389,7 +389,7 @@ export default {
             <div class="materials-section">
               <h4>Matières premières utilisées *</h4>
               <button class="btn-secondary btn-small" @click="fillFromRecipe(entry)" :disabled="loading">
-                ⚡ Remplir depuis la formule
+                <svg-icon name="zap" /> Remplir depuis la formule
               </button>
 
               <div v-for="(row, ridx) in entry.itemRows" :key="ridx" class="material-row">

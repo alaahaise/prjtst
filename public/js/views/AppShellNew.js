@@ -9,17 +9,16 @@ export default {
       toastState,
       sidebarOpen: false,
       navItems: [
-        { path: '/dashboard', label: 'Tableau de bord', icon: '📊' },
-        { path: '/daily-stock', label: 'Stock quotidien', icon: '📈' },
-        { path: '/materials', label: 'Matières premières', icon: '📦' },
-        { path: '/products', label: 'Produits finis', icon: '🏷️' },
-        { path: '/recipes', label: 'Formules', icon: '📜' },
-        { path: '/purchases', label: 'Achats', icon: '🛒' },
-        { path: '/production', label: 'Production', icon: '⚙️' },
-        { path: '/sales', label: 'Ventes', icon: '💰' },
-        { path: '/adjustments', label: 'Ajustements', icon: '🔧' },
-        { path: '/transfers', label: 'Transferts', icon: '🔄' },
-        { path: '/ledger', label: 'Grand livre', icon: '📒' }
+        { path: '/dashboard', label: 'Tableau de bord', icon: 'layout-dashboard' },
+        { path: '/materials', label: 'Matières premières', icon: 'package' },
+        { path: '/products', label: 'Produits finis', icon: 'tag' },
+        { path: '/recipes', label: 'Formules', icon: 'file-text' },
+        { path: '/purchases', label: 'Achats', icon: 'shopping-cart' },
+        { path: '/production', label: 'Production', icon: 'settings' },
+        { path: '/sales', label: 'Ventes', icon: 'banknote' },
+        { path: '/adjustments', label: 'Ajustements', icon: 'wrench' },
+        { path: '/transfers', label: 'Transferts', icon: 'arrow-left-right' },
+        { path: '/ledger', label: 'Grand livre', icon: 'book-open' }
       ]
     };
   },
@@ -51,7 +50,7 @@ export default {
       <!-- TOP BAR -->
       <header class="caspm-topbar">
         <div class="caspm-brand">
-          <button class="caspm-menu-btn" @click="toggleSidebar" aria-label="Menu">☰</button>
+          <button class="caspm-menu-btn" @click="toggleSidebar" aria-label="Menu"><svg-icon name="menu" /></button>
           <img src="/images/logo.png" alt="CASPM" style="border-radius:6px; max-height:36px; width:auto;">
           <div>
             <h1>STOCK.</h1>
@@ -86,7 +85,7 @@ export default {
             exact-active-class="active"
             @click="closeSidebar"
           >
-            <span class="caspm-nav-icon">{{ item.icon }}</span>
+            <span class="caspm-nav-icon"><svg-icon :name="item.icon" /></span>
             <span class="caspm-nav-label">{{ item.label }}</span>
           </router-link>
         </nav>

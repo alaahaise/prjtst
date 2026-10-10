@@ -4,7 +4,6 @@ import { authState, fetchMe } from './auth.js';
 import LoginView from './views/LoginView.js';
 import AppShell from './views/AppShellNew.js';
 import DashboardView from './views/DashboardView.js';
-import DailyStockView from './views/DailyStockView.js';
 import MaterialsView from './views/MaterialsView.js';
 import ProductsView from './views/ProductsView.js';
 import RecipesView from './views/RecipesView.js';
@@ -23,7 +22,6 @@ const routes = [
     children: [
       { path: '', redirect: '/dashboard' },
       { path: 'dashboard', name: 'dashboard', component: DashboardView },
-      { path: 'daily-stock', name: 'daily-stock', component: DailyStockView },
       { path: 'materials', name: 'materials', component: MaterialsView },
       { path: 'products', name: 'products', component: ProductsView },
       { path: 'recipes', name: 'recipes', component: RecipesView },

@@ -238,14 +238,14 @@ async load() {
     <div>
       <div class="panel">
         <div class="panel-head">
-          <h2 style="margin:0;border:none;padding:0;">📒 Journal des mouvements de stock</h2>
+          <h2 style="margin:0;border:none;padding:0;"><svg-icon name="book-open" /> Journal des mouvements de stock</h2>
           <span class="count">{{ items.length }} sur {{ total }}</span>
         </div>
 
         <!-- Toolbar with filters -->
         <div class="toolbar">
           <div class="search-wrap">
-            <span class="ic">⌕</span>
+            <span class="ic"><svg-icon name="search" /></span>
             <input type="search" v-model="search" placeholder="Rechercher par matière ou remarque…">
           </div>
 
@@ -272,7 +272,7 @@ async load() {
           </select>
 
           <button class="btn-secondary btn-small" @click="load" :disabled="loading">
-            ⟳ {{ loading ? 'Chargement…' : 'Actualiser' }}
+            <svg-icon name="refresh" /> {{ loading ? 'Chargement…' : 'Actualiser' }}
           </button>
           <button class="btn-secondary btn-small" @click="clearFilters">Effacer filtres</button>
         </div>
@@ -292,8 +292,8 @@ async load() {
             </select>
           </div>
           <span class="spacer"></span>
-          <button class="ghost small-btn" @click="doExport">📥 CSV</button>
-          <button class="ghost small-btn" @click="doPrint">🖨️ Imprimer</button>
+          <button class="ghost small-btn" @click="doExport"><svg-icon name="download" /> CSV</button>
+          <button class="ghost small-btn" @click="doPrint"><svg-icon name="printer" /> Imprimer</button>
         </div>
 
         <!-- Table -->
@@ -367,9 +367,9 @@ async load() {
         <!-- Pagination controls -->
         <div v-if="totalPages > 1" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding:8px 0; border-top:1px solid var(--rule);">
           <div>
-            <button class="btn-secondary btn-small" @click="prevPage" :disabled="page === 1 || loading">◀ Précédent</button>
+            <button class="btn-secondary btn-small" @click="prevPage" :disabled="page === 1 || loading"><svg-icon name="chevron-left" /> Précédent</button>
             <span style="margin:0 12px; font-size:13px;">Page {{ page }} / {{ totalPages }}</span>
-            <button class="btn-secondary btn-small" @click="nextPage" :disabled="page === totalPages || loading">Suivant ▶</button>
+            <button class="btn-secondary btn-small" @click="nextPage" :disabled="page === totalPages || loading">Suivant <svg-icon name="chevron-right" /></button>
           </div>
           <div style="font-size:12px; opacity:0.6;">
             {{ total }} mouvements au total

@@ -34,21 +34,21 @@ export default {
     <h2>Aperçu du jour</h2>
     <div class="stats-grid" v-if="summary">
       <div class="stat-card stat-card-main">
-        <div class="stat-icon">📦</div>
+        <div class="stat-icon"><svg-icon name="package" /></div>
         <div class="stat-content">
           <span class="stat-number">{{ summary.raw_material_count }}</span>
           <span class="stat-label">Matières premières</span>
         </div>
       </div>
       <div class="stat-card stat-card-main">
-        <div class="stat-icon">🏷️</div>
+        <div class="stat-icon"><svg-icon name="tag" /></div>
         <div class="stat-content">
           <span class="stat-number">{{ summary.finished_product_count }}</span>
           <span class="stat-label">Produits finis</span>
         </div>
       </div>
       <div class="stat-card" :class="summary.low_stock_count > 0 ? 'stat-card-main' : 'stat-card-unit'">
-        <div class="stat-icon">⚠️</div>
+        <div class="stat-icon"><svg-icon name="alert" /></div>
         <div class="stat-content">
           <span class="stat-number">{{ summary.low_stock_count }}</span>
           <span class="stat-label">Articles en stock bas</span>

@@ -138,7 +138,7 @@ export default {
     <div v-if="show" class="modal-overlay" @click.self="close">
       <div class="modal-content" style="max-width: 720px;">
         <div class="modal-header">
-          <h2>📦 Réceptionner en stock</h2>
+          <h2><svg-icon name="package" /> Réceptionner en stock</h2>
           <button class="modal-close" @click="close">×</button>
         </div>
 

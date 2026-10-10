@@ -128,7 +128,7 @@ export default {
           <span class="count">{{ filtered.length }} sur {{ items.length }}</span>
         </div>
         <div class="toolbar">
-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par matière, fournisseur, note…"></div>
+          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par matière, fournisseur, note…"></div>
           <div class="date-range">du <input type="date" v-model="from"> au <input type="date" v-model="to"></div>
           <span class="spacer"></span>
           <button class="ghost small-btn" type="button" @click="doExport">Exporter CSV</button>

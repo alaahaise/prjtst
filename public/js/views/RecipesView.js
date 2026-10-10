@@ -145,7 +145,7 @@ export default {
           <span class="count">{{ filteredRecipes.length }} sur {{ recipes.length }}</span>
         </div>
         <div class="toolbar">
-          <div class="search-wrap"><span class="ic">⌕</span><input type="search" v-model="search" placeholder="Rechercher par produit fini…"></div>
+          <div class="search-wrap"><span class="ic"><svg-icon name="search" /></span><input type="search" v-model="search" placeholder="Rechercher par produit fini…"></div>
         </div>
         <div v-if="!filteredRecipes.length" class="empty"><span class="big">—</span>Aucune Formule ne correspond</div>
         <div v-for="r in filteredRecipes" :key="r.id" style="margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--rule);">
