@@ -44,6 +44,8 @@ export default {
   },
   async mounted() {
     await this.loadData();
+    // opened from the dashboard quick action
+    if (this.$route.query.new) { this.openModal(); this.$router.replace({ query: {} }); }
   },
   methods: {
     fmt, formatDate, relativeLabel,

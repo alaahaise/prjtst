@@ -173,6 +173,8 @@ const rows = [...map.values()].map(g => ({
   async mounted() {
     await this.loadData();
     this.applyPeriod();
+    // opened from the dashboard quick action
+    if (this.$route.query.new) { this.openModal(); this.$router.replace({ query: {} }); }
   },
   methods: {
     fmt, formatDate, relativeLabel,

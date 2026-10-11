@@ -540,3 +540,73 @@ button:only-child > svg.icon:only-child{ margin-right:0; }
 button svg.icon{ margin-right:.4em; }
 button svg.icon:only-child{ margin-right:0; }
 
+
+/* ============================================================
+   Dashboard — KPI cards, chart panels
+   ============================================================ */
+.dash-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+.dash-head h1{ margin:0; font-size:22px; font-weight:800; letter-spacing:-.4px; }
+.dash-sub{ margin-top:3px; font-size:12px; color:var(--text-soft); }
+.dash-controls{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.dash-controls input[type=month]{ padding:6px 10px; }
+.dash-loading{ opacity:.55; pointer-events:none; transition:opacity .15s; }
+
+.dash-kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:18px; }
+.kpi{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px 18px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:8px; min-width:0;
+}
+.kpi-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.kpi-label{ font-size:10px; font-weight:700; letter-spacing:.8px; color:var(--text-faint); text-transform:uppercase; }
+.kpi-icon{
+  width:30px; height:30px; border-radius:9px; background:var(--bg); color:var(--text-soft);
+  display:flex; align-items:center; justify-content:center; font-size:15px;
+}
+.kpi-icon.danger{ background:var(--danger-soft); color:var(--danger); }
+.kpi-icon svg.icon{ width:1em; height:1em; }
+.kpi-value{ font-size:26px; font-weight:800; letter-spacing:-.5px; line-height:1.1; }
+.kpi-value small{ margin-left:5px; font-size:12px; font-weight:600; letter-spacing:0; color:var(--text-faint); }
+.kpi-meta{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.kpi-foot{ font-size:11.5px; color:var(--text-soft); }
+.delta{
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; white-space:nowrap;
+  padding:2px 8px; border-radius:999px; background:var(--bg); color:var(--text-soft);
+}
+.delta.up{ background:var(--success-soft); color:var(--success); }
+.delta.down{ background:var(--danger-soft); color:var(--danger); }
+
+.dash-row{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+@media (max-width:1000px){ .dash-row{ grid-template-columns:1fr; } }
+.chart-box{ position:relative; width:100%; }
+
+.stock-bar{ height:6px; min-width:90px; border-radius:999px; background:var(--border-soft); overflow:hidden; }
+.stock-bar > span{ display:block; height:100%; border-radius:999px; background:var(--red); }
+.dash-note{ margin:12px 0 0; font-size:12px; color:var(--text-soft); }
+
+/* --- Dashboard: quick actions, toggles, status chips --- */
+.dash-quick{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 18px; }
+.dash-quick-label{ font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text-faint); margin-right:2px; }
+.qbtn{
+  display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:10px;
+  border:1px solid var(--border); background:var(--card); color:var(--text); text-decoration:none;
+  font-size:12.5px; font-weight:600; box-shadow:var(--shadow); cursor:pointer; transition:border-color .12s, transform .12s;
+}
+.qbtn:hover{ border-color:var(--red); transform:translateY(-1px); }
+.qbtn svg.icon{ width:15px; height:15px; }
+.qbtn.primary{ background:var(--red); border-color:var(--red); color:#fff; }
+.qbtn.primary:hover{ filter:brightness(1.06); }
+.qbtn.small{ padding:5px 10px; font-size:11.5px; box-shadow:none; }
+
+.panel-tools{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.seg{ display:inline-flex; padding:2px; border-radius:9px; background:var(--bg); border:1px solid var(--border-soft); }
+.seg button{
+  border:0; background:transparent; color:var(--text-soft); font:inherit; font-size:11.5px; font-weight:600;
+  padding:4px 10px; border-radius:7px; cursor:pointer;
+}
+.seg button.active{ background:var(--card); color:var(--text); box-shadow:0 1px 2px rgba(0,0,0,.08); }
+
+.level{ display:flex; align-items:center; gap:10px; }
+.level .stock-bar{ width:110px; flex:none; min-width:0; }
+.chip{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+.chip.danger{ background:var(--danger-soft); color:var(--danger); }
+.chip.warn{ background:#fdf3e1; color:#a8731a; }

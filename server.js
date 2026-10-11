@@ -16,6 +16,7 @@ const adjustmentsRoutes = require('./routes/adjustments');
 const movementsRoutes = require('./routes/movements');
 const transfersRoutes = require('./routes/transfers');
 const productionReceiptsRoutes = require('./routes/productionReceipts');
+const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/adjustments', adjustmentsRoutes);
 app.use('/api/movements', movementsRoutes);
 app.use('/api/transfers', transfersRoutes);
 app.use('/api/production-receipts', productionReceiptsRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 /* ---- Static frontend (Vue app, loaded via native ES modules — no build step) ---- */
 app.use(express.static(path.join(__dirname, 'public')));

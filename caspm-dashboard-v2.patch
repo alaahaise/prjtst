@@ -1,0 +1,609 @@
+diff --git a/public/css/theme.css b/public/css/theme.css
+index ee08349..80aaee5 100644
+--- a/public/css/theme.css
++++ b/public/css/theme.css
+@@ -546,7 +546,7 @@ button svg.icon:only-child{ margin-right:0; }
+    ============================================================ */
+ .dash-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+ .dash-head h1{ margin:0; font-size:22px; font-weight:800; letter-spacing:-.4px; }
+-.dash-sub{ margin-top:3px; font-size:12px; color:var(--text-soft); text-transform:capitalize; }
++.dash-sub{ margin-top:3px; font-size:12px; color:var(--text-soft); }
+ .dash-controls{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+ .dash-controls input[type=month]{ padding:6px 10px; }
+ .dash-loading{ opacity:.55; pointer-events:none; transition:opacity .15s; }
+@@ -582,3 +582,31 @@ button svg.icon:only-child{ margin-right:0; }
+ .stock-bar{ height:6px; min-width:90px; border-radius:999px; background:var(--border-soft); overflow:hidden; }
+ .stock-bar > span{ display:block; height:100%; border-radius:999px; background:var(--red); }
+ .dash-note{ margin:12px 0 0; font-size:12px; color:var(--text-soft); }
++
++/* --- Dashboard: quick actions, toggles, status chips --- */
++.dash-quick{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 18px; }
++.dash-quick-label{ font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text-faint); margin-right:2px; }
++.qbtn{
++  display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:10px;
++  border:1px solid var(--border); background:var(--card); color:var(--text); text-decoration:none;
++  font-size:12.5px; font-weight:600; box-shadow:var(--shadow); cursor:pointer; transition:border-color .12s, transform .12s;
++}
++.qbtn:hover{ border-color:var(--red); transform:translateY(-1px); }
++.qbtn svg.icon{ width:15px; height:15px; }
++.qbtn.primary{ background:var(--red); border-color:var(--red); color:#fff; }
++.qbtn.primary:hover{ filter:brightness(1.06); }
++.qbtn.small{ padding:5px 10px; font-size:11.5px; box-shadow:none; }
++
++.panel-tools{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
++.seg{ display:inline-flex; padding:2px; border-radius:9px; background:var(--bg); border:1px solid var(--border-soft); }
++.seg button{
++  border:0; background:transparent; color:var(--text-soft); font:inherit; font-size:11.5px; font-weight:600;
++  padding:4px 10px; border-radius:7px; cursor:pointer;
++}
++.seg button.active{ background:var(--card); color:var(--text); box-shadow:0 1px 2px rgba(0,0,0,.08); }
++
++.level{ display:flex; align-items:center; gap:10px; }
++.level .stock-bar{ width:110px; flex:none; min-width:0; }
++.chip{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; }
++.chip.danger{ background:var(--danger-soft); color:var(--danger); }
++.chip.warn{ background:#fdf3e1; color:#a8731a; }
+diff --git a/public/js/components/ChartCanvas.js b/public/js/components/ChartCanvas.js
+index 2d579d9..11bca5d 100644
+--- a/public/js/components/ChartCanvas.js
++++ b/public/js/components/ChartCanvas.js
+@@ -8,6 +8,7 @@ Chart.defaults.color = '#6c6c78';
+ Chart.defaults.borderColor = '#f2f2f4';
+ Chart.defaults.plugins.legend.labels.usePointStyle = true;
+ Chart.defaults.plugins.legend.labels.boxWidth = 8;
++Chart.defaults.plugins.legend.labels.boxHeight = 8;
+ Chart.defaults.plugins.tooltip.backgroundColor = '#15151b';
+ Chart.defaults.plugins.tooltip.padding = 10;
+ Chart.defaults.plugins.tooltip.cornerRadius = 8;
+diff --git a/public/js/views/DashboardView.js b/public/js/views/DashboardView.js
+index 7dfeb8f..b0e0e0a 100644
+--- a/public/js/views/DashboardView.js
++++ b/public/js/views/DashboardView.js
+@@ -2,11 +2,15 @@ import { api } from '../api.js';
+ import { fmt } from '../helpers.js';
+ import ChartCanvas from '../components/ChartCanvas.js';
+ 
++const UNIT = 'Q';
+ const RED = '#e5342a';
+ const RED_SOFT = 'rgba(229, 52, 42, 0.12)';
+ const RED_LIGHT = 'rgba(229, 52, 42, 0.35)';
+ const GREY = '#b9b9c4';
+ const DARK = '#15151b';
++const BLUE = '#2563eb';
++const AMBER = '#d99a2e';
++const HISTORY_COLORS = [BLUE, AMBER];
+ 
+ const UNIT_LABELS = { UNITE_A: 'Unité A', UNITE_B: 'Unité B' };
+ 
+@@ -15,14 +19,21 @@ function monthLabel(ym, opts = { month: 'short', year: '2-digit' }) {
+   return new Date(y, m - 1, 1).toLocaleDateString('fr-FR', opts);
+ }
+ 
++function shiftMonth(ym, delta) {
++  const [y, m] = ym.split('-').map(Number);
++  const d = new Date(y, m - 1 + delta, 1);
++  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
++}
++
+ function dayRange(from, to) {
+   const a = new Date(from + 'T00:00:00'), b = new Date(to + 'T00:00:00');
+-  const mon = b.toLocaleDateString('fr-FR', { month: 'short' });
+-  return a.getDate() + '–' + b.getDate() + ' ' + mon;
++  return a.getDate() + '–' + b.getDate() + ' ' + b.toLocaleDateString('fr-FR', { month: 'short' });
+ }
+ 
+-const kgTick = (v) => fmt(v);
+-const tooltipKg = (ctx) => ' ' + ctx.dataset.label + ' : ' + fmt(ctx.parsed.y ?? ctx.parsed.x) + ' Kg';
++// Horizontal charts (indexAxis 'y') keep their value on x; vertical charts keep it on y.
++const valueOf = (ctx) => (ctx.chart.options.indexAxis === 'y' ? ctx.parsed.x : ctx.parsed.y);
++const tipQ = (ctx) => ' ' + ctx.dataset.label + ' : ' + fmt(valueOf(ctx)) + ' ' + UNIT;
++const tickQ = (v) => fmt(v);
+ 
+ export default {
+   name: 'DashboardView',
+@@ -30,10 +41,16 @@ export default {
+   data() {
+     const now = new Date();
+     const current = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+-    return { month: current, maxMonth: current, d: null, loading: true, error: '' };
++    return {
++      month: current, maxMonth: current, d: null, loading: true, error: '',
++      compare: 'prev',     // cumulative chart: 'prev' = last month only, 'three' = last 3 months
++      trendRange: 6,       // monthly chart: 6 or 12 months
++      stockMode: 'qty'     // stock chart: 'qty' = quantities, 'pct' = split by location in %
++    };
+   },
+   async mounted() { await this.load(); },
+   computed: {
++    UNIT() { return UNIT; },
+     periodLabel() {
+       if (!this.d) return '';
+       const p = this.d.period;
+@@ -41,10 +58,13 @@ export default {
+         '  vs  ' + dayRange(p.prevFrom, p.prevTo);
+     },
+     curName() { return this.d ? monthLabel(this.d.period.month, { month: 'long' }) : ''; },
+-    prevName() {
+-      if (!this.d) return '';
+-      const [y, m] = this.d.period.month.split('-').map(Number);
+-      return new Date(y, m - 2, 1).toLocaleDateString('fr-FR', { month: 'long' });
++    prevName() { return this.d ? monthLabel(shiftMonth(this.d.period.month, -1), { month: 'long' }) : ''; },
++    hasHistory() { return !!this.d && this.d.dailyCumulative.history.length > 0; },
++    cumulativeTitle() {
++      if (this.compare === 'three' && this.hasHistory) {
++        return 'Production cumulée — ' + this.curName + ' vs ' + (this.d.dailyCumulative.history.length + 1) + ' mois précédents';
++      }
++      return 'Production cumulée — ' + this.curName + ' vs ' + this.prevName;
+     },
+     kpis() {
+       if (!this.d) return [];
+@@ -52,72 +72,77 @@ export default {
+       const proj = k.production.projectedKg;
+       return [
+         {
+-          label: 'Production', icon: 'settings', value: fmt(k.production.kg), unit: 'Kg',
++          label: 'Production', icon: 'settings', value: fmt(k.production.kg), unit: UNIT,
+           delta: this.delta(k.production.kg, k.production.prevKg),
+           foot: k.production.runs + ' production' + (k.production.runs > 1 ? 's' : '') +
+-            (proj !== null ? ' · projection fin de mois ' + fmt(proj) + ' Kg' : '')
++            (proj !== null ? ' · projection fin de mois ' + fmt(proj) + ' ' + UNIT : '')
+         },
+         {
+-          label: 'Matières consommées', icon: 'package', value: fmt(k.consumption.value), unit: 'Kg',
++          label: 'Matières consommées', icon: 'package', value: fmt(k.consumption.value), unit: UNIT,
+           delta: this.delta(k.consumption.value, k.consumption.prev, true),
+           foot: 'Mois précédent : ' + fmt(k.consumption.prev)
+         },
+         {
+-          label: 'Achats matières', icon: 'shopping-cart', value: fmt(k.purchases.value), unit: 'Kg',
++          label: 'Achats matières', icon: 'shopping-cart', value: fmt(k.purchases.value), unit: UNIT,
+           delta: this.delta(k.purchases.value, k.purchases.prev, true),
+           foot: 'Mois précédent : ' + fmt(k.purchases.prev)
+         },
+         {
+-          label: 'Ventes', icon: 'banknote', value: fmt(k.sales.value), unit: 'Kg',
+-          delta: this.delta(k.sales.value, k.sales.prev),
+-          foot: 'Mois précédent : ' + fmt(k.sales.prev)
+-        },
+-        {
+-          label: 'Stock produits finis', icon: 'tag', value: fmt(k.finishedStockKg), unit: 'Kg',
+-          delta: null, foot: 'Stock actuel (toutes références)'
+-        },
+-        {
+-          label: 'Stock bas', icon: 'alert', value: String(k.lowStockCount), unit: 'article' + (k.lowStockCount > 1 ? 's' : ''),
++          label: 'Stock bas', icon: 'alert', value: String(k.lowStockCount),
++          unit: 'article' + (k.lowStockCount > 1 ? 's' : ''),
+           delta: null, foot: 'Matières sous le minimum', danger: k.lowStockCount > 0
+         }
+       ];
+     },
+     cumulativeChart() {
+       const c = this.d.dailyCumulative;
++      const line = (label, data, color, extra = {}) => ({
++        label, data, borderColor: color, fill: false, tension: 0.25, pointRadius: 0, pointHoverRadius: 4,
++        borderWidth: 2, spanGaps: false, ...extra
++      });
++      const datasets = [
++        line(this.curName, c.current, RED, { backgroundColor: RED_SOFT, fill: true, borderWidth: 2.5 }),
++        line(this.prevName, c.previous, GREY, { borderDash: [6, 5] })
++      ];
++      if (this.compare === 'three') {
++        c.history.forEach((h, i) => {
++          datasets.push(line(monthLabel(h.month, { month: 'long' }), h.cumulative, HISTORY_COLORS[i % HISTORY_COLORS.length], { borderDash: [2, 4] }));
++        });
++      }
+       return {
+-        data: {
+-          labels: c.labels,
+-          datasets: [
+-            { label: this.curName, data: c.current, borderColor: RED, backgroundColor: RED_SOFT, fill: true, tension: 0.25, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2.5, spanGaps: false },
+-            { label: this.prevName, data: c.previous, borderColor: GREY, borderDash: [6, 5], fill: false, tension: 0.25, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, spanGaps: false }
+-          ]
+-        },
++        data: { labels: c.labels, datasets },
+         options: {
+           interaction: { mode: 'index', intersect: false },
+           plugins: {
+-            legend: { position: 'top', align: 'end' },
++            legend: { position: 'top', align: 'end', labels: { pointStyle: 'line', boxWidth: 26 } },
+             tooltip: {
+               callbacks: {
+                 title: (items) => 'Jour ' + items[0].label,
+-                label: (ctx) => ctx.parsed.y === null ? '' : ' ' + ctx.dataset.label + ' : ' + fmt(ctx.parsed.y) + ' Kg'
++                label: (ctx) => ctx.parsed.y === null ? '' : tipQ(ctx)
+               }
+             }
+           },
+           scales: {
+             x: { grid: { display: false }, title: { display: true, text: 'Jour du mois' } },
+-            y: { beginAtZero: true, ticks: { callback: kgTick }, title: { display: true, text: 'Kg cumulés' } }
++            y: { beginAtZero: true, ticks: { callback: tickQ }, title: { display: true, text: UNIT + ' cumulés' } }
+           }
+         }
+       };
+     },
++    trendRows() {
++      // last N months, without the empty months before the first production
++      const rows = this.d.monthlyTrend.slice(-this.trendRange);
++      const first = rows.findIndex(r => r.kg > 0 || r.runs > 0);
++      return first > 0 ? rows.slice(first) : rows;
++    },
+     trendChart() {
+-      const t = this.d.monthlyTrend;
++      const t = this.trendRows;
+       const last = t.length - 1;
+       return {
+         data: {
+           labels: t.map(r => monthLabel(r.month)),
+           datasets: [
+-            { type: 'bar', label: 'Production (Kg)', data: t.map(r => r.kg), yAxisID: 'y', borderRadius: 6, maxBarThickness: 46,
++            { type: 'bar', label: 'Production', data: t.map(r => r.kg), yAxisID: 'y', borderRadius: 6, maxBarThickness: 46,
+               backgroundColor: t.map((_, i) => i === last ? RED : RED_LIGHT) },
+             { type: 'line', label: 'Nombre de productions', data: t.map(r => r.runs), yAxisID: 'y1', borderColor: DARK,
+               backgroundColor: DARK, borderWidth: 2, tension: 0.25, pointRadius: 3 }
+@@ -125,10 +150,19 @@ export default {
+         },
+         options: {
+           interaction: { mode: 'index', intersect: false },
+-          plugins: { legend: { position: 'top', align: 'end' } },
++          plugins: {
++            legend: { position: 'top', align: 'end' },
++            tooltip: {
++              callbacks: {
++                label: (ctx) => ctx.dataset.yAxisID === 'y1'
++                  ? ' ' + ctx.dataset.label + ' : ' + ctx.parsed.y
++                  : tipQ(ctx)
++              }
++            }
++          },
+           scales: {
+             x: { grid: { display: false } },
+-            y: { beginAtZero: true, ticks: { callback: kgTick }, position: 'left' },
++            y: { beginAtZero: true, ticks: { callback: tickQ }, position: 'left' },
+             y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { precision: 0 } }
+           }
+         }
+@@ -145,8 +179,9 @@ export default {
+           ]
+         },
+         options: {
+-          plugins: { legend: { position: 'top', align: 'end' }, tooltip: { callbacks: { label: tooltipKg } } },
+-          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { callback: kgTick } } }
++          interaction: { mode: 'index', intersect: false },
++          plugins: { legend: { position: 'top', align: 'end' }, tooltip: { callbacks: { label: tipQ } } },
++          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { callback: tickQ } } }
+         }
+       };
+     },
+@@ -162,32 +197,52 @@ export default {
+         },
+         options: {
+           indexAxis: 'y',
+-          plugins: { legend: { position: 'top', align: 'end' }, tooltip: { callbacks: { label: tooltipKg } } },
+-          scales: { x: { beginAtZero: true, ticks: { callback: kgTick } }, y: { grid: { display: false } } }
++          interaction: { mode: 'index', axis: 'y', intersect: false },
++          plugins: { legend: { position: 'top', align: 'end' }, tooltip: { callbacks: { label: tipQ } } },
++          scales: { x: { beginAtZero: true, ticks: { callback: tickQ } }, y: { grid: { display: false } } }
+         }
+       };
+     },
+     stockChart() {
+       const s = this.d.stockByLocation;
+-      const ds = (label, key, color) => ({ label, data: s.map(r => r[key]), backgroundColor: color, borderRadius: 3 });
++      const pct = this.stockMode === 'pct';
++      const series = [
++        ['Stock Central', 'central', DARK],
++        ['Unité A', 'unite_a', RED],
++        ['Unité B', 'unite_b', BLUE],
++        ['Pool global', 'pool', GREY]
++      ];
++      const sumOf = (r) => series.reduce((acc, [, key]) => acc + Math.max(0, r[key]), 0);
+       return {
+         data: {
+-          labels: s.map(r => r.name),
+-          datasets: [
+-            ds('Stock Central', 'central', DARK),
+-            ds('Unité A', 'unite_a', RED),
+-            ds('Unité B', 'unite_b', RED_LIGHT),
+-            ds('Pool global', 'pool', GREY)
+-          ]
++          labels: s.map(r => [r.name, fmt(r.total) + ' ' + UNIT]),
++          datasets: series.map(([label, key, color]) => ({
++            label, backgroundColor: color, borderRadius: 3, maxBarThickness: 38,
++            raw: s.map(r => r[key]),
++            data: s.map(r => pct ? (sumOf(r) ? (Math.max(0, r[key]) / sumOf(r)) * 100 : 0) : r[key])
++          }))
+         },
+         options: {
+           indexAxis: 'y',
++          interaction: { mode: 'index', axis: 'y', intersect: false },
+           plugins: {
+             legend: { position: 'top', align: 'end' },
+-            tooltip: { callbacks: { label: (ctx) => ' ' + ctx.dataset.label + ' : ' + fmt(ctx.parsed.x) } }
++            tooltip: {
++              filter: (item) => item.parsed.x !== 0,
++              callbacks: {
++                title: (items) => items[0].chart.data.labels[items[0].dataIndex][0],
++                label: (ctx) => {
++                  const raw = fmt(ctx.dataset.raw[ctx.dataIndex]) + ' ' + UNIT;
++                  return pct ? ' ' + ctx.dataset.label + ' : ' + ctx.parsed.x.toFixed(1) + ' %  (' + raw + ')'
++                             : ' ' + ctx.dataset.label + ' : ' + raw;
++                }
++              }
++            }
+           },
+           scales: {
+-            x: { stacked: true, ticks: { callback: kgTick } },
++            x: pct
++              ? { stacked: true, min: 0, max: 100, ticks: { callback: (v) => v + '%' } }
++              : { stacked: true, ticks: { callback: tickQ } },
+             y: { stacked: true, grid: { display: false } }
+           }
+         }
+@@ -202,6 +257,7 @@ export default {
+       try {
+         this.d = await api('/dashboard?month=' + encodeURIComponent(this.month));
+         this.month = this.d.period.month;
++        if (!this.hasHistory) this.compare = 'prev';
+       } catch (err) {
+         this.error = err.message;
+       } finally {
+@@ -221,6 +277,11 @@ export default {
+     },
+     stockPct(m) {
+       return m.minimum > 0 ? Math.max(0, Math.min(100, (m.current / m.minimum) * 100)) : 0;
++    },
++    stockStatus(m) {
++      if (m.current <= 0) return { label: 'Rupture', cls: 'danger' };
++      if (m.minimum > 0 && m.current / m.minimum < 0.25) return { label: 'Critique', cls: 'danger' };
++      return { label: 'Bas', cls: 'warn' };
+     }
+   },
+   template: `
+@@ -236,6 +297,13 @@ export default {
+     </div>
+   </div>
+ 
++  <div class="dash-quick">
++    <span class="dash-quick-label">Actions rapides</span>
++    <router-link class="qbtn primary" :to="{ path: '/production', query: { new: 1 } }"><svg-icon name="settings" /> Nouvelle production</router-link>
++    <router-link class="qbtn" :to="{ path: '/purchases' }"><svg-icon name="shopping-cart" /> Nouvel achat</router-link>
++    <router-link class="qbtn" :to="{ path: '/transfers', query: { new: 1 } }"><svg-icon name="arrow-left-right" /> Nouveau transfert</router-link>
++  </div>
++
+   <div class="panel" v-if="error"><div class="empty"><span class="big">!</span>{{ error }}</div></div>
+ 
+   <div v-else-if="d" :class="{ 'dash-loading': loading }">
+@@ -255,15 +323,27 @@ export default {
+ 
+     <div class="panel">
+       <div class="panel-head">
+-        <h2>Production cumulée — {{ curName }} vs {{ prevName }}</h2>
+-        <span class="count">à jour du {{ d.period.elapsed }}</span>
++        <h2>{{ cumulativeTitle }}</h2>
++        <div class="panel-tools">
++          <div class="seg" v-if="hasHistory">
++            <button :class="{ active: compare === 'prev' }" @click="compare = 'prev'">Mois précédent</button>
++            <button :class="{ active: compare === 'three' }" @click="compare = 'three'">Plus de mois</button>
++          </div>
++          <span class="count">à jour du {{ d.period.elapsed }}</span>
++        </div>
+       </div>
+       <chart-canvas type="line" :height="340" :data="cumulativeChart.data" :options="cumulativeChart.options" />
+     </div>
+ 
+     <div class="dash-row">
+       <div class="panel">
+-        <div class="panel-head"><h2>Production sur 6 mois</h2></div>
++        <div class="panel-head">
++          <h2>Production mensuelle</h2>
++          <div class="seg">
++            <button :class="{ active: trendRange === 6 }" @click="trendRange = 6">6 mois</button>
++            <button :class="{ active: trendRange === 12 }" @click="trendRange = 12">12 mois</button>
++          </div>
++        </div>
+         <chart-canvas type="bar" :data="trendChart.data" :options="trendChart.options" />
+       </div>
+       <div class="panel">
+@@ -274,19 +354,29 @@ export default {
+ 
+     <div class="dash-row">
+       <div class="panel">
+-        <div class="panel-head"><h2>Top produits fabriqués</h2><span class="count">même période</span></div>
+-        <chart-canvas type="bar" :data="productsChart.data" :options="productsChart.options" />
++        <div class="panel-head">
++          <h2>Stock matières par emplacement</h2>
++          <div class="seg">
++            <button :class="{ active: stockMode === 'qty' }" @click="stockMode = 'qty'">Quantités</button>
++            <button :class="{ active: stockMode === 'pct' }" @click="stockMode = 'pct'">Répartition %</button>
++          </div>
++        </div>
++        <chart-canvas type="bar" :height="300" :data="stockChart.data" :options="stockChart.options" />
++        <p class="dash-note">Pool global : matières suivies sans répartition par unité (ex. Maïs, Calcaire).</p>
+       </div>
+       <div class="panel">
+-        <div class="panel-head"><h2>Stock matières par emplacement</h2><span class="count">8 plus gros stocks</span></div>
+-        <chart-canvas type="bar" :data="stockChart.data" :options="stockChart.options" />
++        <div class="panel-head"><h2>Top produits fabriqués</h2><span class="count">même période</span></div>
++        <chart-canvas type="bar" :height="332" :data="productsChart.data" :options="productsChart.options" />
+       </div>
+     </div>
+ 
+     <div class="panel">
+       <div class="panel-head">
+         <h2>Alertes de stock bas</h2>
+-        <span class="count">{{ d.kpis.lowStockCount }} article{{ d.kpis.lowStockCount === 1 ? '' : 's' }}</span>
++        <div class="panel-tools">
++          <span class="count">{{ d.lowStock.length }} sur {{ d.kpis.lowStockCount }}</span>
++          <router-link class="qbtn small" to="/materials">Voir les matières →</router-link>
++        </div>
+       </div>
+       <div class="tbl-wrap">
+         <table>
+@@ -301,7 +391,12 @@ export default {
+             <tr v-if="!d.lowStock.length"><td colspan="5" class="empty"><span class="big">—</span>Rien en dessous du stock minimum</td></tr>
+             <tr v-for="m in d.lowStock" :key="m.id">
+               <td class="text">{{ m.name }}</td>
+-              <td><div class="stock-bar"><span :style="{ width: stockPct(m) + '%' }"></span></div></td>
++              <td>
++                <div class="level">
++                  <div class="stock-bar"><span :style="{ width: stockPct(m) + '%' }"></span></div>
++                  <span class="chip" :class="stockStatus(m).cls">{{ stockStatus(m).label }}</span>
++                </div>
++              </td>
+               <td class="num-cell low">{{ fmt(m.current) }} {{ m.unit }}</td>
+               <td class="num-cell">{{ fmt(m.minimum) }} {{ m.unit }}</td>
+               <td class="num-cell low">{{ fmt(m.minimum - m.current) }} {{ m.unit }}</td>
+@@ -310,7 +405,7 @@ export default {
+         </table>
+       </div>
+       <p class="dash-note" v-if="d.kpis.lowStockCount > d.lowStock.length">
+-        + {{ d.kpis.lowStockCount - d.lowStock.length }} autre(s) article(s) sous le minimum — voir « Matières premières ».
++        + {{ d.kpis.lowStockCount - d.lowStock.length }} autre(s) article(s) sous le minimum.
+       </p>
+     </div>
+   </div>
+diff --git a/public/js/views/ProductionView.js b/public/js/views/ProductionView.js
+index cdc35b3..b1b3bef 100644
+--- a/public/js/views/ProductionView.js
++++ b/public/js/views/ProductionView.js
+@@ -173,6 +173,8 @@ const rows = [...map.values()].map(g => ({
+   async mounted() {
+     await this.loadData();
+     this.applyPeriod();
++    // opened from the dashboard quick action
++    if (this.$route.query.new) { this.openModal(); this.$router.replace({ query: {} }); }
+   },
+   methods: {
+     fmt, formatDate, relativeLabel,
+diff --git a/public/js/views/TransfersView.js b/public/js/views/TransfersView.js
+index cbb32a0..c967036 100644
+--- a/public/js/views/TransfersView.js
++++ b/public/js/views/TransfersView.js
+@@ -44,6 +44,8 @@ export default {
+   },
+   async mounted() {
+     await this.loadData();
++    // opened from the dashboard quick action
++    if (this.$route.query.new) { this.openModal(); this.$router.replace({ query: {} }); }
+   },
+   methods: {
+     fmt, formatDate, relativeLabel,
+diff --git a/routes/dashboard.js b/routes/dashboard.js
+index 7ea506c..ada8ae6 100644
+--- a/routes/dashboard.js
++++ b/routes/dashboard.js
+@@ -7,6 +7,11 @@ const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate(
+ const num = (v) => Number(v) || 0;
+ const round2 = (v) => Math.round(v * 100) / 100;
+ 
++// Raw materials shown in the "stock par emplacement" chart (display order). Edit this list to change the chart.
++const KEY_MATERIALS = ['Mais', 'Soja', 'Calcaire', 'Son Fin'];
++const LOW_STOCK_LIMIT = 12;
++const TREND_MONTHS = 12;
++
+ /**
+  * Work out every date window the dashboard needs for a given month.
+  * - "current" runs from the 1st to `ref` (today, or month-end for a past month)
+@@ -47,9 +52,14 @@ function buildPeriods(monthParam) {
+     prevDays: prevEnd.getDate(),
+     start: ymd(start), ref: ymd(ref), end: ymd(end),
+     prevStart: ymd(prevStart), prevRef: ymd(prevRef), prevEnd: ymd(prevEnd),
+-    trendStart: ymd(new Date(y, m - 5, 1)),
+-    trendMonths: Array.from({ length: 6 }, (_, i) => {
+-      const d = new Date(y, m - 5 + i, 1);
++    histStart: ymd(new Date(y, m - 3, 1)),
++    prevMonthKeys: [1, 2, 3].map(i => {
++      const d = new Date(y, m - i, 1);
++      return { ym: `${d.getFullYear()}-${pad(d.getMonth() + 1)}`, days: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() };
++    }),
++    trendStart: ymd(new Date(y, m - (TREND_MONTHS - 1), 1)),
++    trendMonths: Array.from({ length: TREND_MONTHS }, (_, i) => {
++      const d = new Date(y, m - (TREND_MONTHS - 1) + i, 1);
+       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+     })
+   };
+@@ -81,11 +91,6 @@ router.get('/', async (req, res) => {
+       `SELECT COALESCE(SUM(pi.quantity_used),0) AS q
+        FROM production_items pi JOIN production p ON p.id = pi.production_id
+        WHERE p.production_date BETWEEN ? AND ?`, [from, to]);
+-    const salesTotal = (from, to) => q(
+-      `SELECT COALESCE(SUM(quantity),0) AS q FROM sales WHERE sale_date BETWEEN ? AND ?`, [from, to]);
+-    const dailyProd = (from, to) => q(
+-      `SELECT DAY(production_date) AS d, SUM(quantity_produced) AS kg
+-       FROM production WHERE production_date BETWEEN ? AND ? GROUP BY d`, [from, to]);
+     const byUnit = (from, to) => q(
+       `SELECT sl.code, SUM(p.quantity_produced) AS kg
+        FROM production p JOIN stock_locations sl ON sl.id = p.location_id
+@@ -97,21 +102,20 @@ router.get('/', async (req, res) => {
+ 
+     const [
+       curProd, prevProd, prevFullProd,
+-      curPurch, prevPurch, curCons, prevCons, curSales, prevSales,
+-      curDaily, prevDaily,
++      curPurch, prevPurch, curCons, prevCons,
++      dailyRows,
+       trendRows, curUnits, prevUnits, curProducts, prevProducts,
+-      finishedStock, stockRows, lowStockRows, lowStockCount
++      stockRows, lowStockRows, lowStockCount
+     ] = await Promise.all([
+       prodTotals(p.start, p.ref), prodTotals(p.prevStart, p.prevRef), prodTotals(p.prevStart, p.prevEnd),
+       purchaseTotal(p.start, p.ref), purchaseTotal(p.prevStart, p.prevRef),
+       consumptionTotal(p.start, p.ref), consumptionTotal(p.prevStart, p.prevRef),
+-      salesTotal(p.start, p.ref), salesTotal(p.prevStart, p.prevRef),
+-      dailyProd(p.start, p.ref), dailyProd(p.prevStart, p.prevEnd),
++      q(`SELECT DATE_FORMAT(production_date,'%Y-%m') AS ym, DAY(production_date) AS d, SUM(quantity_produced) AS kg
++         FROM production WHERE production_date BETWEEN ? AND ? GROUP BY ym, d`, [p.histStart, p.ref]),
+       q(`SELECT DATE_FORMAT(production_date,'%Y-%m') AS ym, SUM(quantity_produced) AS kg, COUNT(*) AS runs
+          FROM production WHERE production_date BETWEEN ? AND ? GROUP BY ym`, [p.trendStart, p.end]),
+       byUnit(p.start, p.ref), byUnit(p.prevStart, p.prevRef),
+       byProduct(p.start, p.ref), byProduct(p.prevStart, p.prevRef),
+-      q(`SELECT COALESCE(SUM(current_stock),0) AS kg FROM finished_products WHERE active = TRUE`),
+       q(`SELECT rm.id, rm.name, rm.unit,
+                 SUM(CASE WHEN sl.code = 'CENTRAL' THEN rms.quantity ELSE 0 END) AS central,
+                 SUM(CASE WHEN sl.code = 'UNITE_A' THEN rms.quantity ELSE 0 END) AS unite_a,
+@@ -121,16 +125,22 @@ router.get('/', async (req, res) => {
+          FROM raw_materials rm
+          LEFT JOIN raw_material_stock rms ON rms.raw_material_id = rm.id
+          LEFT JOIN stock_locations sl ON sl.id = rms.location_id
+-         WHERE rm.active = TRUE
++         WHERE rm.active = TRUE AND rm.name IN (?)
+          GROUP BY rm.id, rm.name, rm.unit, rm.current_stock
+-         ORDER BY rm.current_stock DESC LIMIT 8`),
++         ORDER BY FIELD(rm.name, ?)`, [KEY_MATERIALS, KEY_MATERIALS]),
+       q(`SELECT id, name, unit, current_stock, minimum_stock FROM raw_materials
+          WHERE active = TRUE AND current_stock <= minimum_stock
+-         ORDER BY (current_stock - minimum_stock) ASC, name LIMIT 8`),
++         ORDER BY (current_stock - minimum_stock) ASC, name LIMIT ${LOW_STOCK_LIMIT}`),
+       q(`SELECT COUNT(*) AS c FROM raw_materials WHERE active = TRUE AND current_stock <= minimum_stock`)
+     ]);
+ 
+-    const chartDays = Math.max(p.daysInMonth, p.prevDays);
++    const chartDays = Math.max(p.daysInMonth, ...p.prevMonthKeys.map(k => k.days));
++    const rowsFor = (ym) => dailyRows.filter(r => r.ym === ym);
++    const history = p.prevMonthKeys.slice(1).map(k => ({
++      month: k.ym,
++      cumulative: cumulative(rowsFor(k.ym), chartDays, k.days),
++      hasData: rowsFor(k.ym).length > 0
++    })).filter(h => h.hasData).map(({ month, cumulative: c }) => ({ month, cumulative: c }));
+     const prodNow = curProd[0];
+     const projected = p.isCurrentMonth && p.elapsed > 0
+       ? round2((num(prodNow.kg) / p.elapsed) * p.daysInMonth)
+@@ -156,14 +166,13 @@ router.get('/', async (req, res) => {
+         },
+         consumption: { value: num(curCons[0].q), prev: num(prevCons[0].q) },
+         purchases: { value: num(curPurch[0].q), prev: num(prevPurch[0].q) },
+-        sales: { value: num(curSales[0].q), prev: num(prevSales[0].q) },
+-        finishedStockKg: num(finishedStock[0].kg),
+         lowStockCount: num(lowStockCount[0].c)
+       },
+       dailyCumulative: {
+         labels: Array.from({ length: chartDays }, (_, i) => i + 1),
+-        current: cumulative(curDaily, chartDays, p.elapsed),
+-        previous: cumulative(prevDaily, chartDays, p.prevDays)
++        current: cumulative(rowsFor(p.month), chartDays, p.elapsed),
++        previous: cumulative(rowsFor(p.prevMonthKeys[0].ym), chartDays, p.prevDays),
++        history
+       },
+       monthlyTrend: p.trendMonths.map(ym => {
+         const r = trendMap.get(ym);
